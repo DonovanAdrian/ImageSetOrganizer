@@ -280,6 +280,9 @@
               <Dimension value="[100, 29]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="continueBtnActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

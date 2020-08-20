@@ -139,25 +139,10 @@ public class WelcomeUI extends javax.swing.JFrame {
             ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
             imageSetPicker.setVisible(true);
         }
-        //Open are you sure prompt (Only close this window if yes)
-        //Reset Config
-            //Are you sure? Y/N
-                //If N, Cancel
-                //If Y, Change BOTH Locations
-                    //How many image sets will you need to set up?
-                        //(Calculator Setup w/ backspace, un-editable text box)
-                    //Will these image sets be on the desktop or elsewhere?
-                    //Set location for image set if not desktop (Dialog -> Directory)
-                        //once complete, verify that a location is valid
-                            //Add/Open/Remove test text file to ensure that r/w works
-                    //Would you like to set up a source folder? Y/N
-                    //If N, Setup Complete!
-                    //If Y, Continue...
-                        //Now you will need to set up the source folder (Dialog -> Directory)
-                            //Verify that location is valid again
-                    //Setup complete! Would you like to continue using program? Y/N
-                        //If N, Exit
-                        //If Y, Welcome Page
+        
+        //Complete continueBtnActionPerformed()
+        //Complete completeSetup()
+        //Complete testReadWrite()
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed

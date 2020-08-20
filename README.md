@@ -6,9 +6,9 @@
 - [ ] Set Up Basic/Custom UI
   - [ ] Welcome Window
   - [ ] Calculator-esque UI Window
-  - [ ] Yes/No Dialog Window
+  - [x] Yes/No Dialog Window
   - [ ] Directory Selection Window
-  - [ ] Basic Information Window
+  - [x] Basic Information Window
   - [ ] Basic Error Window
 - [ ] Set Up Logic
   - [ ] Config File Organization

@@ -5,6 +5,7 @@
  */
 package imagesetorganizer.presentation;
 import imagesetorganizer.presentation.WelcomeUI;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -156,6 +157,11 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
 
         continueBtn.setText("Continue");
         continueBtn.setSize(new java.awt.Dimension(100, 29));
+        continueBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                continueBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -315,6 +321,36 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
         welcomeUI.setVisible(true);
     }//GEN-LAST:event_cancelBtnActionPerformed
 
+    private void continueBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_continueBtnActionPerformed
+        this.setVisible(false);
+        boolean userChoiceA = trueFalsePrompt("Desktop", "Elsewhere",
+                "Will these image sets be on the desktop\n"
+              + "or will they be placed elsewhere?", "Desktop? Elsewhere?");
+        if (userChoiceA){//desktop
+            //Set Desktop Destination Directory
+            boolean userChoiceB = trueFalsePrompt("Yes", "No",
+                "Would you like to set up a source folder?", "Source Folder?");
+            if (userChoiceB){
+                //WHILE LOOP (if not R/W valid)
+                //Prompt Directory Location
+                //Confirm Location Is R/W Valid
+                if(testReadWrite())
+                    System.out.println("All Good!");
+                    //Set Custom Source Directory, break while loop
+                completeSetup();
+            } else {
+                completeSetup();
+            }
+        } else {//elsewhere
+            //WHILE LOOP (if not R/W valid)
+            //Prompt Directory Location
+            //Confirm Location Is R/W Valid
+            if(testReadWrite())
+                System.out.println("All Good!");
+                //Set Custom Destination Directory, break while loop
+        }
+    }//GEN-LAST:event_continueBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -364,6 +400,43 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     private void updateJLabel(String num){
         keypadOutputIndicator.setText(num);
         super.update(this.getGraphics());
+    }
+    
+    private boolean trueFalsePrompt(String optionA, String optionB, 
+            String prompt, String title){
+        while(true) {
+            int userChoice = JOptionPane.showOptionDialog(null, prompt, title,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                    new String[]{optionB, optionA}, "default");
+            if (userChoice == 1) {
+                return true;
+            } else if (userChoice != -1) {
+                return false;
+            }
+        }
+    }
+    
+    private void completeSetup(){
+        //File I/O Here...
+            //Fetch Destination Directory
+            //Fetch # Of Image Sets
+            //Fetch Source Directory (if set)
+            //Create Image Set Folders (SRC_DIR_NAME + " - 1 Print")
+                //Confirm Folders Are Present & R/W Valid
+        if(testReadWrite())
+            System.out.println("All Good!");
+            //Write All To Config
+        JOptionPane.showMessageDialog(null,
+                "Setup complete! The program will now exit.\n"
+              + "Once you have organized all your pictures,\n"
+              + "just reopen this program! Thanks!", "Setup Complete!",
+              JOptionPane.PLAIN_MESSAGE);
+        System.exit(0);
+    }
+    
+    private boolean testReadWrite(){
+        //Set passed variable to directory location
+        return true;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
