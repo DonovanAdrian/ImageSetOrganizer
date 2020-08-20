@@ -1,13 +1,15 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This project was created by Donovan Adrian and any
+ * edits or changes must be confirmed as valid by Donovan
+ * with written consent under any circumstance.
  */
 package imagesetorganizer.presentation;
+import imagesetorganizer.presentation.ImageSetPickerUI;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author DoughnutVan
+ * @author Donovan Adrian
  */
 public class WelcomeUI extends javax.swing.JFrame {
 
@@ -49,8 +51,18 @@ public class WelcomeUI extends javax.swing.JFrame {
         welcomeTextFieldB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         bringBackBtn.setText("Bring Back Photos");
+        bringBackBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bringBackBtnActionPerformed(evt);
+            }
+        });
 
         resetConfigBtn.setText("Reset Config");
+        resetConfigBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetConfigBtnActionPerformed(evt);
+            }
+        });
 
         exitBtn.setText("Exit");
         exitBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -83,9 +95,9 @@ public class WelcomeUI extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(welcomeTextFieldA)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(welcomeTextFieldB)
-                .addGap(18, 18, 18)
+                .addGap(24, 24, 24)
                 .addComponent(bringBackBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resetConfigBtn)
@@ -112,15 +124,59 @@ public class WelcomeUI extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitBtnActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitBtnActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void resetConfigBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetConfigBtnActionPerformed
+        boolean userChoice = trueFalsePrompt("Are you sure you want to reset"
+                + " the config?", "Are you sure?");
+        if (userChoice){
+            this.setVisible(false);
+            ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
+            imageSetPicker.setVisible(true);
+        }
+        //Open are you sure prompt (Only close this window if yes)
+        //Reset Config
+            //Are you sure? Y/N
+                //If N, Cancel
+                //If Y, Change BOTH Locations
+                    //How many image sets will you need to set up?
+                        //(Calculator Setup w/ backspace, un-editable text box)
+                    //Will these image sets be on the desktop or elsewhere?
+                    //Set location for image set if not desktop (Dialog -> Directory)
+                        //once complete, verify that a location is valid
+                            //Add/Open/Remove test text file to ensure that r/w works
+                    //Would you like to set up a source folder? Y/N
+                    //If N, Setup Complete!
+                    //If Y, Continue...
+                        //Now you will need to set up the source folder (Dialog -> Directory)
+                            //Verify that location is valid again
+                    //Setup complete! Would you like to continue using program? Y/N
+                        //If N, Exit
+                        //If Y, Welcome Page
+    }//GEN-LAST:event_resetConfigBtnActionPerformed
+
+    private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
+        //Bring Back Photos
+            //Check config file
+            //If not set up, Reset Config
+            //If set up...
+                //Check Print Folders and cross reference with past source folders
+                    //Confirm Potential Selection Y/N
+                //Query Source Folder (Dialog -> Directory)
+                    //Confirm Selection Y/N
+            //Bring Back Photos (FEE functions)
+            //Confirm That Folders Are Empty (Check Folders in alg)
+            //Confirm That It Was Put In The Correct Folder (Check arr with files)
+            //Change Name Of Empty Folders (Input Dialog)
+            //Confirm folder name changes
+            //Photos And Folders Successfully Changed! Exiting Program...
+    }//GEN-LAST:event_bringBackBtnActionPerformed
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -151,6 +207,19 @@ public class WelcomeUI extends javax.swing.JFrame {
                 new WelcomeUI().setVisible(true);
             }
         });
+    }
+    
+    private static boolean trueFalsePrompt(String prompt, String title){
+        while(true) {
+            int userChoice = JOptionPane.showOptionDialog(null, prompt, title,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                    new String[]{"No", "Yes"}, "default");
+            if (userChoice == 1) {
+                return true;
+            } else if (userChoice != -1) {
+                return false;
+            }
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
