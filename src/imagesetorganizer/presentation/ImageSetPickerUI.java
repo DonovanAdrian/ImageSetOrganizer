@@ -4,8 +4,17 @@
  * with written consent under any circumstance.
  */
 package imagesetorganizer.presentation;
-import imagesetorganizer.presentation.WelcomeUI;
+import java.io.BufferedWriter;
 import javax.swing.JOptionPane;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -13,8 +22,14 @@ import javax.swing.JOptionPane;
  */
 public class ImageSetPickerUI extends javax.swing.JFrame {
     
+    ArrayList<File> createdFolders = new ArrayList<File>();
     String imageSetNum = "0";
-
+    String destinationDir = "";
+    String sourceDir = "";
+    String sourceDirName = "";
+    File destinationDirSrc;
+    File sourceDirSrc;
+    JFileChooser fileChooser;
     /**
      * Creates new form ImageSetPickerUI
      */
@@ -322,32 +337,37 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     }//GEN-LAST:event_cancelBtnActionPerformed
 
     private void continueBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_continueBtnActionPerformed
-        this.setVisible(false);
-        boolean userChoiceA = trueFalsePrompt("Desktop", "Elsewhere",
-                "Will these image sets be on the desktop\n"
-              + "or will they be placed elsewhere?", "Desktop? Elsewhere?");
-        if (userChoiceA){//desktop
-            //Set Desktop Destination Directory
-            boolean userChoiceB = trueFalsePrompt("Yes", "No",
-                "Would you like to set up a source folder?", "Source Folder?");
-            if (userChoiceB){
-                //WHILE LOOP (if not R/W valid)
-                //Prompt Directory Location
-                //Confirm Location Is R/W Valid
-                if(testReadWrite())
-                    System.out.println("All Good!");
-                    //Set Custom Source Directory, break while loop
-                completeSetup();
+        if(imageSetNum.equals("0") || imageSetNum.equals("2!")){
+            JOptionPane.showMessageDialog(null,
+                    "Please pick a valid number of image\n"
+                  + "sets to create!",
+                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } else {
+            this.setVisible(false);
+            boolean userChoiceA = trueFalsePrompt("Desktop", "Elsewhere",
+                    "Will these image sets be on the desktop\n"
+                  + "or will they be placed elsewhere?", "Desktop? Elsewhere?");
+            if (userChoiceA){//desktop
+                destinationDirSrc = new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() + "/Desktop/");
+                destinationDir = destinationDirSrc.getAbsolutePath();
+                if (!testReadWrite(destinationDirSrc)){
+                    JOptionPane.showMessageDialog(null,
+                            "Unable to locate the desktop! Please\n"
+                          + "point us to where it may be located.",
+                            "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+                    destinationDir = fetchDirectoryPrompt("destination");
+                }
+                boolean userChoiceB = trueFalsePrompt("Yes", "No",
+                    "Would you like to set up a source folder now?", "Source Folder?");
+                if (userChoiceB){
+                    sourceDir = fetchDirectoryPrompt("source");
+                    completeSetup();
+                } else {
+                    completeSetup();
+                }
             } else {
-                completeSetup();
+                destinationDir = fetchDirectoryPrompt("destination");
             }
-        } else {//elsewhere
-            //WHILE LOOP (if not R/W valid)
-            //Prompt Directory Location
-            //Confirm Location Is R/W Valid
-            if(testReadWrite())
-                System.out.println("All Good!");
-                //Set Custom Destination Directory, break while loop
         }
     }//GEN-LAST:event_continueBtnActionPerformed
 
@@ -417,26 +437,162 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     }
     
     private void completeSetup(){
-        //File I/O Here...
-            //Fetch Destination Directory
-            //Fetch # Of Image Sets
-            //Fetch Source Directory (if set)
-            //Create Image Set Folders (SRC_DIR_NAME + " - 1 Print")
-                //Confirm Folders Are Present & R/W Valid
-        if(testReadWrite())
-            System.out.println("All Good!");
-            //Write All To Config
-        JOptionPane.showMessageDialog(null,
-                "Setup complete! The program will now exit.\n"
-              + "Once you have organized all your pictures,\n"
-              + "just reopen this program! Thanks!", "Setup Complete!",
-              JOptionPane.PLAIN_MESSAGE);
-        System.exit(0);
+        boolean setUpCompleted = false;
+        File tempImageSetFolder;
+        File imageSetSrc;
+        int retryNum = 0;
+        if (!sourceDir.equals("")) {
+            sourceDirName = sourceDirSrc.getName();
+        } else {
+            while (true) {
+                sourceDirName = JOptionPane.showInputDialog(null,
+                        "Since a source directory wasn't set, please\n"
+                      + "choose a name for the image set folders.",
+                        "Input A File Name",
+                        JOptionPane.PLAIN_MESSAGE);
+                if(userInputValid(sourceDirName))
+                    break;
+                else
+                    JOptionPane.showMessageDialog(null,
+                        "Please enter a valid name for the\n"
+                      + "image set folders... Please try again!",
+                        "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        for (int i = 1; i < Integer.parseInt(imageSetNum) + 1; i++) {
+            tempImageSetFolder = new File(destinationDir + "/" + sourceDirName + " - " + i + " Print");
+            if(!tempImageSetFolder.exists())
+                if(tempImageSetFolder.mkdir()) {
+                    System.out.println("Created Folder " + i + "!");
+                    createdFolders.add(tempImageSetFolder);
+                }
+        }
+        imageSetSrc = new File(destinationDir + "/" + sourceDirName + " - " + 1 + " Print");
+        while (true){
+            if(testReadWrite(imageSetSrc))
+                if(verifyImageSetFolders()) {
+                    setUpCompleted = true;
+                    break;
+                }
+                else
+                    retryNum++;
+            else
+                retryNum++;
+            if(retryNum == 3) {
+                JOptionPane.showMessageDialog(null,
+                        "There was an error setting up the\n"
+                      + "image set folders... Please try again!",
+                        "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+                for (int i = 0; i < createdFolders.size(); i++)
+                    if(!createdFolders.get(i).delete())
+                        System.out.println("Print Folder " + i + " Not Deleted...");
+                WelcomeUI welcomeUI = new WelcomeUI();
+                welcomeUI.setVisible(true);
+                break;
+            }
+        }
+        if(setUpCompleted) {
+            writeDataToConfig();
+            JOptionPane.showMessageDialog(null,
+                    "Setup complete! The program will now exit.\n"
+                  + "Once you have organized all your pictures,\n"
+                  + "just reopen this program! Thanks!", "Setup Complete!",
+                  JOptionPane.PLAIN_MESSAGE);
+            System.exit(0);
+        }
     }
     
-    private boolean testReadWrite(){
-        //Set passed variable to directory location
+    private String fetchDirectoryPrompt(String searchTerm){
+        String userInputDir = "";
+        File userInputDirSrc;
+        
+        JOptionPane.showMessageDialog(null,
+                "Please use the following window to\n"
+              + "choose a proper " + searchTerm + " directory.",
+                "Please Choose A Directory",
+                JOptionPane.PLAIN_MESSAGE);
+        
+        while (true) {
+            fileChooser = new JFileChooser(FileSystemView.getFileSystemView());
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = fileChooser.showOpenDialog(null);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                userInputDirSrc = fileChooser.getSelectedFile();
+                if(testReadWrite(userInputDirSrc))
+                    break;
+                else
+                    JOptionPane.showMessageDialog(null,
+                            "The directory you chose is invalid\n"
+                          + "Please choose another directory!",
+                            "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "You did not choose a directory.\n"
+                      + "Please choose a directory to continue.",
+                        "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return userInputDir;
+    }
+    
+    private boolean userInputValid(String userInput){
+        if(userInput.matches("[/\\\"<>:|?*]"))
+            return false;
+        else
+            return true;
+    }
+    
+    private boolean testReadWrite(File directory){
+        File testFile = new File(getClass().getResource("/imagesetorganizer/testFile.txt").getFile());
+        File testFileDestination = new File(directory.getAbsolutePath() + "/testFile.txt");
+        try {
+            Path temp = Files.copy(testFile.toPath(),
+                                    testFileDestination.toPath(),
+                                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ioe){
+            System.out.println("Error: " + ioe.getMessage());
+            return false;
+        }
+        if (!testFileDestination.delete()) {
+            System.out.println("Error: Test File Not Deleted...");
+            return false;
+        }
         return true;
+    }
+    
+    private void writeDataToConfig(){
+        File configFile = new File(getClass().getResource("/imagesetorganizer/config.txt").getFile());
+        //destinationDir
+        //sourceDir
+        //imageSetNum
+        if (configFile.exists() && configFile.isFile())
+            try {
+                configFile.delete();
+                configFile.createNewFile();
+                FileWriter fWriter = new FileWriter(configFile.getAbsoluteFile(), true);
+                BufferedWriter writer = new BufferedWriter(fWriter);
+                writer.write("Test!");
+                writer.close();
+                fWriter.close();
+                System.out.println("Config Written");
+            } catch (IOException ioe){
+                System.out.println("Error: Config Not Written...");
+            }
+        else
+            System.out.println("Config File Does Not Exist");
+    }
+    
+    private boolean verifyImageSetFolders(){
+        ArrayList<String> imageSetFolderNames = new ArrayList<String>();
+        for (final File fileEntry : destinationDirSrc.listFiles())
+            if (fileEntry.getName().contains(sourceDirName) && fileEntry.getName().contains("Print"))
+                imageSetFolderNames.add(fileEntry.getName());
+        if(imageSetFolderNames.size() == Integer.parseInt(imageSetNum))
+            return true;
+        else {
+            System.out.println("Error: Not All Image Set Folders Present!");
+            return false;
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

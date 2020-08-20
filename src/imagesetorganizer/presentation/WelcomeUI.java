@@ -140,9 +140,7 @@ public class WelcomeUI extends javax.swing.JFrame {
             imageSetPicker.setVisible(true);
         }
         
-        //Complete continueBtnActionPerformed()
-        //Complete completeSetup()
-        //Complete testReadWrite()
+        //Complete writeDataToConfig()
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
