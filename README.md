@@ -5,17 +5,15 @@
 ## ***Task List***
 - [ ] Set Up Basic/Custom UI
   - [ ] Welcome Window
-  - [ ] Calculator-esque UI Window
+  - [x] Calculator-esque UI Window
   - [x] Yes/No Dialog Window
-  - [ ] Directory Selection Window
+  - [x] Directory Selection Window
   - [x] Basic Information Window
-  - [ ] Basic Error Window
+  - [x] Basic Error Window
 - [ ] Set Up Logic
-  - [ ] Config File Organization
-  - [ ] Config Object
-  - [ ] Config Service
+  - [x] Config File Organization
   - [ ] File I/O Operations
-  - [ ] Intelligent Source Folder Guessing?
+  - [ ] Smart Source Folder Guessing?
 
 
 ## Welcome!

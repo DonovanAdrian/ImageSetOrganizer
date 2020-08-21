@@ -4,11 +4,14 @@
  * with written consent under any circumstance.
  */
 package imagesetorganizer.presentation;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import javax.swing.JOptionPane;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -22,7 +25,7 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class ImageSetPickerUI extends javax.swing.JFrame {
     
-    ArrayList<File> createdFolders = new ArrayList<File>();
+    ArrayList<File> createdFolders = new ArrayList<>();
     String imageSetNum = "0";
     String destinationDir = "";
     String sourceDir = "";
@@ -355,18 +358,21 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
                             "Unable to locate the desktop! Please\n"
                           + "point us to where it may be located.",
                             "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
-                    destinationDir = fetchDirectoryPrompt("destination");
-                }
-                boolean userChoiceB = trueFalsePrompt("Yes", "No",
-                    "Would you like to set up a source folder now?", "Source Folder?");
-                if (userChoiceB){
-                    sourceDir = fetchDirectoryPrompt("source");
-                    completeSetup();
-                } else {
-                    completeSetup();
+                    destinationDirSrc = fetchDirectoryPrompt("destination");
+                    destinationDir = destinationDirSrc.getAbsolutePath();
                 }
             } else {
-                destinationDir = fetchDirectoryPrompt("destination");
+                destinationDirSrc = fetchDirectoryPrompt("destination");
+                destinationDir = destinationDirSrc.getAbsolutePath();
+            }
+            boolean userChoiceB = trueFalsePrompt("Yes", "No",
+                "Would you like to set up a source folder now?", "Source Folder?");
+            if (userChoiceB){
+                sourceDirSrc = fetchDirectoryPrompt("source");
+                sourceDir = sourceDirSrc.getAbsolutePath();
+                completeSetup();
+            } else {
+                completeSetup();
             }
         }
     }//GEN-LAST:event_continueBtnActionPerformed
@@ -462,10 +468,8 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
         for (int i = 1; i < Integer.parseInt(imageSetNum) + 1; i++) {
             tempImageSetFolder = new File(destinationDir + "/" + sourceDirName + " - " + i + " Print");
             if(!tempImageSetFolder.exists())
-                if(tempImageSetFolder.mkdir()) {
-                    System.out.println("Created Folder " + i + "!");
+                if(tempImageSetFolder.mkdir())
                     createdFolders.add(tempImageSetFolder);
-                }
         }
         imageSetSrc = new File(destinationDir + "/" + sourceDirName + " - " + 1 + " Print");
         while (true){
@@ -502,8 +506,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
         }
     }
     
-    private String fetchDirectoryPrompt(String searchTerm){
-        String userInputDir = "";
+    private File fetchDirectoryPrompt(String searchTerm){
         File userInputDirSrc;
         
         JOptionPane.showMessageDialog(null,
@@ -532,7 +535,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
                         "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
             }
         }
-        return userInputDir;
+        return userInputDirSrc;
     }
     
     private boolean userInputValid(String userInput){
@@ -543,38 +546,29 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     }
     
     private boolean testReadWrite(File directory){
-        File testFile = new File(getClass().getResource("/imagesetorganizer/testFile.txt").getFile());
-        File testFileDestination = new File(directory.getAbsolutePath() + "/testFile.txt");
-        try {
-            Path temp = Files.copy(testFile.toPath(),
-                                    testFileDestination.toPath(),
-                                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ioe){
-            System.out.println("Error: " + ioe.getMessage());
+        if (directory.exists() && directory.canRead() && directory.canWrite())
+            return true;
+        else
             return false;
-        }
-        if (!testFileDestination.delete()) {
-            System.out.println("Error: Test File Not Deleted...");
-            return false;
-        }
-        return true;
     }
     
     private void writeDataToConfig(){
-        File configFile = new File(getClass().getResource("/imagesetorganizer/config.txt").getFile());
-        //destinationDir
-        //sourceDir
-        //imageSetNum
-        if (configFile.exists() && configFile.isFile())
+        File configFile = new File("config.txt");
+        if (configFile.exists() && configFile.isFile() && configFile.canWrite())
             try {
                 configFile.delete();
                 configFile.createNewFile();
-                FileWriter fWriter = new FileWriter(configFile.getAbsoluteFile(), true);
-                BufferedWriter writer = new BufferedWriter(fWriter);
-                writer.write("Test!");
+                FileWriter fWriter = new FileWriter(configFile);
+                PrintWriter writer = new PrintWriter(fWriter);
+                writer.println("*****CONFIG SETTINGS*****");
+                writer.println("***PLEASE DO NOT EDIT!***");
+                writer.println(imageSetNum);
+                writer.println(destinationDir);
+                if (sourceDir.equals(""))
+                    writer.println("###NO SOURCE DIR PROVIDED###");
+                else
+                    writer.println(sourceDir);
                 writer.close();
-                fWriter.close();
-                System.out.println("Config Written");
             } catch (IOException ioe){
                 System.out.println("Error: Config Not Written...");
             }
@@ -583,7 +577,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     }
     
     private boolean verifyImageSetFolders(){
-        ArrayList<String> imageSetFolderNames = new ArrayList<String>();
+        ArrayList<String> imageSetFolderNames = new ArrayList<>();
         for (final File fileEntry : destinationDirSrc.listFiles())
             if (fileEntry.getName().contains(sourceDirName) && fileEntry.getName().contains("Print"))
                 imageSetFolderNames.add(fileEntry.getName());

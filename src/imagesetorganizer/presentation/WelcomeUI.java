@@ -139,24 +139,44 @@ public class WelcomeUI extends javax.swing.JFrame {
             ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
             imageSetPicker.setVisible(true);
         }
-        
-        //Complete writeDataToConfig()
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
+        /* Use To Read Config
+        FileReader fReader = new FileReader(configFile);
+        BufferedReader bReader = new BufferedReader(fReader);
+        String output = "";
+        while((output = bReader.readLine()) != null)
+            System.out.println(output);
+        System.out.println("Config Read");
+        */
+
         //Bring Back Photos
             //Check config file
             //If not set up, Reset Config
-            //If set up...
+            //If set up, check that all folders still exist
+                //Reset Necessary Pointers (DONT DELETE/RESET DIRS)
+            //If Source Not Specified
                 //Check Print Folders and cross reference with past source folders
-                    //Confirm Potential Selection Y/N
+                    //Only Enable "Smart Sources" After 10 Transfers
+                    //Confirm Smart Selection Y/N
+                    //Store Y/N
+                        //If No, wait 10 more transfers
                 //Query Source Folder (Dialog -> Directory)
                     //Confirm Selection Y/N
-            //Bring Back Photos (FEE functions)
+                //Bring Back Photos
+            //If Source Specified
+                //Bring Back Photos (FEE functions)
             //Confirm That Folders Are Empty (Check Folders in alg)
             //Confirm That It Was Put In The Correct Folder (Check arr with files)
-            //Change Name Of Empty Folders (Input Dialog)
-            //Confirm folder name changes
+            //Change Name Of Empty Folders (Input Dialog) (CONFIRM NAME)
+                //Change? Or Remove&AddNew
+            //Confirm folder name changes with alg
+            //Set ***PAST TRANSFERS*** if not present
+            //Add new past transfer
+            //>>>FROM (Destination)
+            //<<<TO (Source)
+            //Query Source Dir For Future Transfers (Y/N THEN Dialog -> Directory)
             //Photos And Folders Successfully Changed! Exiting Program...
     }//GEN-LAST:event_bringBackBtnActionPerformed
     
