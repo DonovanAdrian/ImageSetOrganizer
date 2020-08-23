@@ -483,15 +483,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
             else
                 retryNum++;
             if(retryNum == 3) {
-                JOptionPane.showMessageDialog(null,
-                        "There was an error setting up the\n"
-                      + "image set folders... Please try again!",
-                        "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
-                for (int i = 0; i < createdFolders.size(); i++)
-                    if(!createdFolders.get(i).delete())
-                        System.out.println("Print Folder " + i + " Not Deleted...");
-                WelcomeUI welcomeUI = new WelcomeUI();
-                welcomeUI.setVisible(true);
+                failedSetUp("the image set folders");
                 break;
             }
         }
@@ -571,9 +563,28 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
                 writer.close();
             } catch (IOException ioe){
                 System.out.println("Error: Config Not Written...");
+                tryToCreateNewConfig(configFile);
+                failedSetUp("the config file");
             }
-        else
+        else {
             System.out.println("Config File Does Not Exist");
+            tryToCreateNewConfig(configFile);
+            failedSetUp("the config file");
+        }
+    }
+    
+    private boolean tryToCreateNewConfig(File config){
+        try {
+            if (config.exists()){
+                config.delete();
+                config.createNewFile();
+            } else {
+                config.createNewFile();
+            }
+            return true;
+        } catch (IOException ioe) {
+            return false;
+        }
     }
     
     private boolean verifyImageSetFolders(){
@@ -587,6 +598,18 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
             System.out.println("Error: Not All Image Set Folders Present!");
             return false;
         }
+    }
+    
+    private void failedSetUp(String failReason){
+        JOptionPane.showMessageDialog(null,
+                "There was an error setting up\n"
+              + failReason + "... Please try again!",
+                "Failed Set Up", JOptionPane.ERROR_MESSAGE);
+        for (int i = 0; i < createdFolders.size(); i++)
+            if(!createdFolders.get(i).delete())
+                System.out.println("Print Folder " + i + " Not Deleted...");
+        WelcomeUI welcomeUI = new WelcomeUI();
+        welcomeUI.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -5,6 +5,11 @@
  */
 package imagesetorganizer.presentation;
 import imagesetorganizer.presentation.ImageSetPickerUI;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -142,31 +147,114 @@ public class WelcomeUI extends javax.swing.JFrame {
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
-        /* Use To Read Config
-        FileReader fReader = new FileReader(configFile);
-        BufferedReader bReader = new BufferedReader(fReader);
-        String output = "";
-        while((output = bReader.readLine()) != null)
-            System.out.println(output);
-        System.out.println("Config Read");
-        */
-
-        //Bring Back Photos
-            //Check config file
-            //If not set up, Reset Config
-            //If set up, check that all folders still exist
-                //Reset Necessary Pointers (DONT DELETE/RESET DIRS)
-            //If Source Not Specified
-                //Check Print Folders and cross reference with past source folders
+        ArrayList<File> imageSetFolders = new ArrayList<>();
+        ArrayList<String> configMemory = new ArrayList<>();
+        File configFile = new File("config.txt");
+        File destinationDirSrc;
+        File sourceDirSrc;
+        int imageSetNum = 0;
+        int folderContents = 0;
+        boolean configError = false;
+        
+        try {
+            FileReader fReader = new FileReader(configFile);
+            BufferedReader bReader = new BufferedReader(fReader);
+            String output = "";
+            while((output = bReader.readLine()) != null)
+                configMemory.add(output);
+            System.out.println("Config Read");
+        } catch (IOException ioe) {
+            System.out.println("Error: Config Not Read...");
+            JOptionPane.showMessageDialog(null,
+                "There was an error reading\n"
+              + "the config... Please try again!",
+                "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+            configError = true;
+        }
+        
+        if (!configError && !configMemory.isEmpty()){
+            imageSetNum = Integer.valueOf(configMemory.get(2));
+            destinationDirSrc = new File(configMemory.get(3));
+            sourceDirSrc = new File(configMemory.get(4));
+            
+            if (destinationDirSrc.exists() && sourceDirSrc.exists() && imageSetNum != 0)
+                System.out.println("All Operations Nominal");
+            else if (destinationDirSrc.exists() && !sourceDirSrc.exists() && imageSetNum != 0){
+                System.out.println("Source Set Up Required");
+                
+                //Set Up Source
+                
+                //Check Print Folders and check Destination Dir for similar names
                     //Only Enable "Smart Sources" After 10 Transfers
                     //Confirm Smart Selection Y/N
                     //Store Y/N
-                        //If No, wait 10 more transfers
+                        //If No, wait 10 more transfers and query source folder
                 //Query Source Folder (Dialog -> Directory)
                     //Confirm Selection Y/N
-                //Bring Back Photos
-            //If Source Specified
-                //Bring Back Photos (FEE functions)
+                    
+            } else {
+                
+                //Eventually set up to point back to new directories
+                
+                System.out.println("Destination Exists: " + destinationDirSrc.exists());
+                System.out.println("Source Exists: " + sourceDirSrc.exists());
+                System.out.println("Image Set #: " + imageSetNum);
+                JOptionPane.showMessageDialog(null,
+                    "There was an error reading\n"
+                  + "the config... Please try again!",
+                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            for (final File fileEntry : destinationDirSrc.listFiles())
+                if (fileEntry.getName().contains(" - ") && 
+                    fileEntry.getName().contains(" Print")){
+                    imageSetFolders.add(fileEntry);
+                    System.out.println("Added: " + fileEntry.getName());
+                }
+            
+            if (imageSetFolders.isEmpty()){
+                JOptionPane.showMessageDialog(null,
+                    "There was an error finding the\n"
+                  + "image set folders in that directory...\n"
+                  + "Please try again!",
+                    "Failed Finding Folders", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            for (int i = 0; i < imageSetFolders.size(); i++)
+                for (final File fileEntry : imageSetFolders.get(i).listFiles())
+                    folderContents++;
+            
+            if (folderContents == 0) {
+                JOptionPane.showMessageDialog(null,
+                    "The image set folders are empty...\n"
+                  + "Please use this program once you\n"
+                  + "have organized some files.",
+                    "No Images Found", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            //Ready to transfer files
+            //Use FEE IO Operations Here
+            
+        } else if (!configError && configMemory.isEmpty()) {
+            boolean userChoice = trueFalsePrompt(
+                    "The config is not set up. In order to\n"
+                  + "continue, a config must be set up. If you\n"
+                  + "have already set up image-set folders,\n"
+                  + "please complete config setup and use the\n"
+                  + "folders provided by this program instead.\n\n"
+                  + "Would you like to set up a config?", "Set Up Config?");
+            if (userChoice){
+                this.setVisible(false);
+                ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
+                imageSetPicker.setVisible(true);
+            }
+        }
+
+        //Bring Back Photos
+            //Bring Back Photos (FEE functions)
             //Confirm That Folders Are Empty (Check Folders in alg)
             //Confirm That It Was Put In The Correct Folder (Check arr with files)
             //Change Name Of Empty Folders (Input Dialog) (CONFIRM NAME)
@@ -178,6 +266,8 @@ public class WelcomeUI extends javax.swing.JFrame {
             //<<<TO (Source)
             //Query Source Dir For Future Transfers (Y/N THEN Dialog -> Directory)
             //Photos And Folders Successfully Changed! Exiting Program...
+            
+            //Search for "eventually set up to point back to new directories"
     }//GEN-LAST:event_bringBackBtnActionPerformed
     
     public static void main(String args[]) {
