@@ -9,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
@@ -148,12 +151,19 @@ public class WelcomeUI extends javax.swing.JFrame {
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
         ArrayList<File> imageSetFolders = new ArrayList<>();
+        ArrayList<File> imageSetFiles = new ArrayList<>();
+        ArrayList<File> completedTransfers = new ArrayList<>();
+        ArrayList<File> createdFolders = new ArrayList<>();
         ArrayList<String> configMemory = new ArrayList<>();
+        Path fileQueuePath;
         File configFile = new File("config.txt");
+        File tempImageSetFolder;
         File destinationDirSrc;
         File sourceDirSrc;
+        File fileQueue;
         int imageSetNum = 0;
-        int folderContents = 0;
+        String sourceDirName = "";
+        String transferStatus = "NOMINAL";
         boolean configError = false;
         
         try {
@@ -224,9 +234,9 @@ public class WelcomeUI extends javax.swing.JFrame {
             
             for (int i = 0; i < imageSetFolders.size(); i++)
                 for (final File fileEntry : imageSetFolders.get(i).listFiles())
-                    folderContents++;
+                    imageSetFiles.add(fileEntry);
             
-            if (folderContents == 0) {
+            if (imageSetFiles.isEmpty()) {
                 JOptionPane.showMessageDialog(null,
                     "The image set folders are empty...\n"
                   + "Please use this program once you\n"
@@ -235,8 +245,96 @@ public class WelcomeUI extends javax.swing.JFrame {
                 return;
             }
             
-            //Ready to transfer files
-            //Use FEE IO Operations Here
+            for (int i = 0; i < imageSetFiles.size(); i++) {
+                fileQueue = new File(
+                        sourceDirSrc.getAbsolutePath() + "/" + 
+                        imageSetFiles.get(i).getName());
+                try {
+                    fileQueuePath = Files.copy(
+                        imageSetFiles.get(i).toPath(),
+                        fileQueue.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+                    
+                    if (fileQueuePath != null) {
+                        completedTransfers.add(fileQueue);
+                    }
+                } catch (IOException ioe) {
+                    for (int z = 0; z < completedTransfers.size(); z++)
+                        completedTransfers.get(z).delete();
+                    JOptionPane.showMessageDialog(null,
+                        "There was an error transferring\n"
+                      + "your files... Please try again!",
+                        "Image Transfer Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+            
+            for (int i = 0; i < completedTransfers.size(); i++)
+                if (!completedTransfers.get(i).exists() ||
+                    !completedTransfers.get(i).canRead() ||
+                    !completedTransfers.get(i).canWrite()) {
+                    for (int z = 0; z < completedTransfers.size(); z++)
+                        completedTransfers.get(z).delete();
+                    JOptionPane.showMessageDialog(null,
+                        "There was an error transferring\n"
+                      + "your files... Please try again!",
+                        "Image Transfer Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                    
+            for (int i = 0; i < imageSetFiles.size(); i++)
+                if (imageSetFiles.get(i).delete())
+                    System.out.println("Deleted File " + 
+                            imageSetFiles.get(i).getName());
+                else
+                    System.out.println("Failed To Delete File: " + 
+                            imageSetFiles.get(i).getName());
+            
+            //Set A New Source Directory, If Desired
+            //If No Source Directory Chosen...
+            while (true) {
+                sourceDirName = JOptionPane.showInputDialog(null,
+                        "Since a source directory wasn't set, please\n"
+                      + "choose a name for the image set folders.",
+                        "Input A File Name",
+                        JOptionPane.PLAIN_MESSAGE);
+                if(userInputValid(sourceDirName)) {
+                    if(trueFalsePrompt(
+                            "Are you sure you want the\nname " 
+                           + sourceDirName + "?", "Confirm New Name"))
+                        break;
+                }
+                else
+                    JOptionPane.showMessageDialog(null,
+                        "Please enter a valid name for the\n"
+                      + "image set folders... Please try again!",
+                        "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            for (int i = 0; i < imageSetFolders.size(); i++) {
+                if (imageSetFolders.get(i).delete())
+                    System.out.println("Deleted Folder " + 
+                            imageSetFolders.get(i).getName());
+                else
+                    System.out.println("Failed To Delete Folder: " + 
+                            imageSetFolders.get(i).getName());
+                
+                tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
+                if(!tempImageSetFolder.exists())
+                    if(tempImageSetFolder.mkdir())
+                        createdFolders.add(tempImageSetFolder);
+            }
+            
+            writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(),
+                    sourceDirSrc.getAbsolutePath(), transferStatus);
+            
+            JOptionPane.showMessageDialog(null,
+                    "Transfer complete! The program will now exit.\n"
+                  + "Once you have organized all your pictures again,\n"
+                  + "just reopen this program! Thanks!", "Transfer Complete!",
+                  JOptionPane.PLAIN_MESSAGE);
+            System.exit(0);
+                
             
         } else if (!configError && configMemory.isEmpty()) {
             boolean userChoice = trueFalsePrompt(
@@ -253,21 +351,18 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         }
 
-        //Bring Back Photos
-            //Bring Back Photos (FEE functions)
-            //Confirm That Folders Are Empty (Check Folders in alg)
-            //Confirm That It Was Put In The Correct Folder (Check arr with files)
-            //Change Name Of Empty Folders (Input Dialog) (CONFIRM NAME)
-                //Change? Or Remove&AddNew
-            //Confirm folder name changes with alg
-            //Set ***PAST TRANSFERS*** if not present
-            //Add new past transfer
-            //>>>FROM (Destination)
-            //<<<TO (Source)
+        //ToDo:
+            //Finish Write Data To Config
+            //Set Up Initial Source (Dialog -> Directory)/"Smart Sources"
+                //Line 195
             //Query Source Dir For Future Transfers (Y/N THEN Dialog -> Directory)
-            //Photos And Folders Successfully Changed! Exiting Program...
+                //Line 293
             
-            //Search for "eventually set up to point back to new directories"
+        //Check to see if removed files get placed in recycle bin
+        //Search for "eventually set up to point back to new directories"
+        //Print Failed, Partial, and Full transfers to PAST TRANSFERS section
+            //transferStatus = "PARTIAL" on partial or "FAILED" on failed
+        //Create Progress Window to keep track of transfers
     }//GEN-LAST:event_bringBackBtnActionPerformed
     
     public static void main(String args[]) {
@@ -313,6 +408,25 @@ public class WelcomeUI extends javax.swing.JFrame {
                 return false;
             }
         }
+    }
+    
+    private boolean userInputValid(String userInput){
+        if(userInput.matches("[/\\\"<>:|?*]"))
+            return false;
+        else
+            return true;
+    }
+    
+    private void writeDataToConfig(ArrayList<String> configMemory,
+            String destination, String source, String status){
+        if(!configMemory.contains("***PAST TRANSFERS***")){
+            configMemory.add("\n\n");
+            configMemory.add("***PAST TRANSFERS***");
+        }
+        configMemory.add(destination 
+                    + " >>>TRANSFERRED TO>>> " 
+                    + source 
+                    + " >>>STATUS: " + status + ">>>");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
