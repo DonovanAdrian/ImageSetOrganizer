@@ -5,6 +5,7 @@
 ## ***Task List***
 - [ ] Set Up Basic/Custom UI
   - [ ] Welcome Window
+  - [ ] Progress Window
   - [x] Calculator-esque UI Window
   - [x] Yes/No Dialog Window
   - [x] Directory Selection Window
@@ -12,8 +13,9 @@
   - [x] Basic Error Window
 - [ ] Set Up Logic
   - [x] Config File Organization
-  - [ ] File I/O Operations
+  - [x] File I/O Operations
   - [ ] Smart Source Folder Guessing?
+- [ ] Test Program
 
 
 ## Welcome!
