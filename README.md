@@ -11,10 +11,8 @@
   - [x] Directory Selection Window
   - [x] Basic Information Window
   - [x] Basic Error Window
-- [ ] Set Up Logic
-  - [x] Config File Organization
-  - [x] File I/O Operations
-  - [ ] Smart Source Folder Guessing?
+- [x] Set Up Logic
+- [ ] Set Up Smart Source Guessing
 - [ ] Test Program
 
 
