@@ -4,16 +4,19 @@
  * with written consent under any circumstance.
  */
 package imagesetorganizer.presentation;
-import imagesetorganizer.presentation.ImageSetPickerUI;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -37,7 +40,7 @@ public class WelcomeUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        welcomeUIjPanel = new javax.swing.JPanel();
         welcomeTextFieldA = new javax.swing.JLabel();
         welcomeTextFieldB = new javax.swing.JLabel();
         bringBackBtn = new javax.swing.JButton();
@@ -46,7 +49,7 @@ public class WelcomeUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        welcomeUIjPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         welcomeTextFieldA.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         welcomeTextFieldA.setText("Welcome To The Image Set Organizer!");
@@ -79,28 +82,28 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout welcomeUIjPanelLayout = new javax.swing.GroupLayout(welcomeUIjPanel);
+        welcomeUIjPanel.setLayout(welcomeUIjPanelLayout);
+        welcomeUIjPanelLayout.setHorizontalGroup(
+            welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(welcomeUIjPanelLayout.createSequentialGroup()
+                .addGroup(welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, welcomeUIjPanelLayout.createSequentialGroup()
                         .addGap(22, 22, 22)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(resetConfigBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(bringBackBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(exitBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(welcomeUIjPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(welcomeTextFieldB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(welcomeTextFieldA, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        welcomeUIjPanelLayout.setVerticalGroup(
+            welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(welcomeUIjPanelLayout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(welcomeTextFieldA)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -120,14 +123,14 @@ public class WelcomeUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(welcomeUIjPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(welcomeUIjPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -153,7 +156,6 @@ public class WelcomeUI extends javax.swing.JFrame {
         ArrayList<File> imageSetFolders = new ArrayList<>();
         ArrayList<File> imageSetFiles = new ArrayList<>();
         ArrayList<File> completedTransfers = new ArrayList<>();
-        ArrayList<File> createdFolders = new ArrayList<>();
         ArrayList<String> configMemory = new ArrayList<>();
         Path fileQueuePath;
         File configFile = new File("config.txt");
@@ -162,14 +164,17 @@ public class WelcomeUI extends javax.swing.JFrame {
         File sourceDirSrc;
         File fileQueue;
         int imageSetNum = 0;
+        String newSourceDir = "";
         String sourceDirName = "";
         String transferStatus = "NOMINAL";
+        String smartSourceStatus = "";
         boolean configError = false;
+        boolean smartSource = false;
         
         try {
             FileReader fReader = new FileReader(configFile);
             BufferedReader bReader = new BufferedReader(fReader);
-            String output = "";
+            String output;
             while((output = bReader.readLine()) != null)
                 configMemory.add(output);
             System.out.println("Config Read");
@@ -192,19 +197,26 @@ public class WelcomeUI extends javax.swing.JFrame {
             else if (destinationDirSrc.exists() && !sourceDirSrc.exists() && imageSetNum != 0){
                 System.out.println("Source Set Up Required");
                 
-                //Set Up Source
+                if (configMemory.size() >= 18)
+                    smartSource = true;
                 
-                //Check Print Folders and check Destination Dir for similar names
-                    //Only Enable "Smart Sources" After 10 Transfers
-                    //Confirm Smart Selection Y/N
-                    //Store Y/N
-                        //If No, wait 10 more transfers and query source folder
-                //Query Source Folder (Dialog -> Directory)
-                    //Confirm Selection Y/N
+                if (smartSource) {
+                    sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory);
+                } else {
+                    while (true) {
+                        sourceDirSrc = fetchDirectoryPrompt("source");
+                        if(trueFalsePrompt(
+                                "Is this the folder you wanted\n"
+                              + "to pick: " + sourceDirSrc.getName() + "?", 
+                                "Confirm Directory"));
+                            break;
+                    }
+                }
                     
             } else {
                 
                 //Eventually set up to point back to new directories
+                    //Edit ImageSetPickerUI to support outside-of-method usage
                 
                 System.out.println("Destination Exists: " + destinationDirSrc.exists());
                 System.out.println("Source Exists: " + sourceDirSrc.exists());
@@ -290,25 +302,29 @@ public class WelcomeUI extends javax.swing.JFrame {
                     System.out.println("Failed To Delete File: " + 
                             imageSetFiles.get(i).getName());
             
-            //Set A New Source Directory, If Desired
-            //If No Source Directory Chosen...
-            while (true) {
-                sourceDirName = JOptionPane.showInputDialog(null,
-                        "Since a source directory wasn't set, please\n"
-                      + "choose a name for the image set folders.",
-                        "Input A File Name",
-                        JOptionPane.PLAIN_MESSAGE);
-                if(userInputValid(sourceDirName)) {
-                    if(trueFalsePrompt(
-                            "Are you sure you want the\nname " 
-                           + sourceDirName + "?", "Confirm New Name"))
-                        break;
+            boolean userChoice = trueFalsePrompt(
+                "Would you like to set up a source folder now?", "Source Folder?");
+            if (userChoice){
+                newSourceDir = fetchDirectoryPrompt("source").getAbsolutePath();
+            } else {
+                while (true) {
+                    sourceDirName = JOptionPane.showInputDialog(null,
+                            "Since a source directory wasn't set, please\n"
+                          + "choose a name for the image set folders.",
+                            "Input A File Name",
+                            JOptionPane.PLAIN_MESSAGE);
+                    if(userInputValid(sourceDirName)) {
+                        if(trueFalsePrompt(
+                                "Are you sure you want the\nname " 
+                               + sourceDirName + "?", "Confirm New Name"))
+                            break;
+                    }
+                    else
+                        JOptionPane.showMessageDialog(null,
+                            "Please enter a valid name for the\n"
+                          + "image set folders... Please try again!",
+                            "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
                 }
-                else
-                    JOptionPane.showMessageDialog(null,
-                        "Please enter a valid name for the\n"
-                      + "image set folders... Please try again!",
-                        "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
             }
             
             for (int i = 0; i < imageSetFolders.size(); i++) {
@@ -322,11 +338,13 @@ public class WelcomeUI extends javax.swing.JFrame {
                 tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
                 if(!tempImageSetFolder.exists())
                     if(tempImageSetFolder.mkdir())
-                        createdFolders.add(tempImageSetFolder);
+                        System.out.println("Created Image Set Folder " + i);
             }
             
-            writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(),
-                    sourceDirSrc.getAbsolutePath(), transferStatus);
+            if(!writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(),
+                    sourceDirSrc.getAbsolutePath(), transferStatus, newSourceDir,
+                    smartSourceStatus))
+                return;
             
             JOptionPane.showMessageDialog(null,
                     "Transfer complete! The program will now exit.\n"
@@ -350,13 +368,6 @@ public class WelcomeUI extends javax.swing.JFrame {
                 imageSetPicker.setVisible(true);
             }
         }
-
-        //ToDo:
-            //Finish Write Data To Config
-            //Set Up Initial Source (Dialog -> Directory)/"Smart Sources"
-                //Line 195
-            //Query Source Dir For Future Transfers (Y/N THEN Dialog -> Directory)
-                //Line 293
             
         //Check to see if removed files get placed in recycle bin
         //Search for "eventually set up to point back to new directories"
@@ -378,22 +389,17 @@ public class WelcomeUI extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(WelcomeUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(WelcomeUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(WelcomeUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | 
+                IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(WelcomeUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new WelcomeUI().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new WelcomeUI().setVisible(true);
         });
     }
     
@@ -411,14 +417,52 @@ public class WelcomeUI extends javax.swing.JFrame {
     }
     
     private boolean userInputValid(String userInput){
-        if(userInput.matches("[/\\\"<>:|?*]"))
-            return false;
-        else
-            return true;
+        return !userInput.matches("[/\\\"<>:|?*]");
     }
     
-    private void writeDataToConfig(ArrayList<String> configMemory,
-            String destination, String source, String status){
+    private File fetchDirectoryPrompt(String searchTerm){
+        JFileChooser fileChooser;
+        File userInputDirSrc;
+        
+        JOptionPane.showMessageDialog(null,
+                "Please use the following window to\n"
+              + "choose a proper " + searchTerm + " directory.",
+                "Please Choose A Directory",
+                JOptionPane.PLAIN_MESSAGE);
+        
+        while (true) {
+            fileChooser = new JFileChooser(FileSystemView.getFileSystemView());
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = fileChooser.showOpenDialog(null);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                userInputDirSrc = fileChooser.getSelectedFile();
+                if(testReadWrite(userInputDirSrc))
+                    break;
+                else
+                    JOptionPane.showMessageDialog(null,
+                            "The directory you chose is invalid\n"
+                          + "Please choose another directory!",
+                            "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "You did not choose a directory.\n"
+                      + "Please choose a directory to continue.",
+                        "Unsuitable Directory", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return userInputDirSrc;
+    }
+    
+    private boolean testReadWrite(File directory){
+        return directory.exists() && directory.canRead() && directory.canWrite();
+    }
+    
+    private boolean writeDataToConfig(ArrayList<String> configMemory,
+                            String destination, String source, String status, 
+                            String newSource, String smartSourceStatus){
+        
+        File configFile = new File("config.txt");
+        
         if(!configMemory.contains("***PAST TRANSFERS***")){
             configMemory.add("\n\n");
             configMemory.add("***PAST TRANSFERS***");
@@ -426,15 +470,75 @@ public class WelcomeUI extends javax.swing.JFrame {
         configMemory.add(destination 
                     + " >>>TRANSFERRED TO>>> " 
                     + source 
-                    + " >>>STATUS: " + status + ">>>");
+                    + " >>>STATUS: " + status + ">>> " + smartSourceStatus);
+        
+        if (configFile.exists() && configFile.isFile() && configFile.canWrite())
+            try {
+                configFile.delete();
+                configFile.createNewFile();
+                FileWriter fWriter = new FileWriter(configFile);
+                PrintWriter writer = new PrintWriter(fWriter);
+                for (int i = 0; i < configMemory.size(); i++)
+                    if (i != 4)
+                        writer.println(configMemory.get(i));
+                    else
+                        if (newSource.equals(""))
+                            writer.println("###NO SOURCE DIR PROVIDED###");
+                        else
+                            writer.println(newSource);
+                
+                writer.close();
+            } catch (IOException ioe){
+                System.out.println("Error: Config Not Written...");
+                JOptionPane.showMessageDialog(null,
+                        "There was an error writing\n"
+                      + "to the config file... Please\n"
+                      + "try again!",
+                        "Config Write Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        else {
+            System.out.println("Config File Does Not Exist");
+            JOptionPane.showMessageDialog(null,
+                    "There was an error writing\n"
+                  + "to the config file... Please\n"
+                  + "try again!",
+                    "Config Does Not Exist", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+    
+    private File smartSourcePicker(File destination, ArrayList<String> configMemory){
+        File sourceDirSrc;
+        
+        //check smart source percentage correct from .get(17) to < current size
+        //if above 50%, consider options and ask
+        //if below 50%, lurk and guess. If correct, add to log
+        
+        //Check Print Folders and check Destination Dir for similar names
+            //Only Enable "Smart Sources" After 10 Transfers
+            //Confirm Smart Selection Y/N
+            //Store Y/N
+        
+        while (true) {
+            sourceDirSrc = fetchDirectoryPrompt("source");
+            if(trueFalsePrompt(
+                    "Is this the folder you wanted\n"
+                  + "to pick: " + sourceDirSrc.getName() + "?", 
+                    "Confirm Directory"));
+                break;
+        }
+        
+        return sourceDirSrc;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bringBackBtn;
     private javax.swing.JButton exitBtn;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JButton resetConfigBtn;
     private javax.swing.JLabel welcomeTextFieldA;
     private javax.swing.JLabel welcomeTextFieldB;
+    private javax.swing.JPanel welcomeUIjPanel;
     // End of variables declaration//GEN-END:variables
 }
