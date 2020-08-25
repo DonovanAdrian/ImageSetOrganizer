@@ -23,6 +23,8 @@ import javax.swing.filechooser.FileSystemView;
  * @author Donovan Adrian
  */
 public class WelcomeUI extends javax.swing.JFrame {
+    
+    String smartSourceStatus = "";
 
     /**
      * Creates new form WelcomeUI
@@ -167,9 +169,8 @@ public class WelcomeUI extends javax.swing.JFrame {
         String newSourceDir = "";
         String sourceDirName = "";
         String transferStatus = "NOMINAL";
-        String smartSourceStatus = "";
         boolean configError = false;
-        boolean smartSource = false;
+        boolean imageSetNumReset = false;
         
         try {
             FileReader fReader = new FileReader(configFile);
@@ -196,27 +197,33 @@ public class WelcomeUI extends javax.swing.JFrame {
                 System.out.println("All Operations Nominal");
             else if (destinationDirSrc.exists() && !sourceDirSrc.exists() && imageSetNum != 0){
                 System.out.println("Source Set Up Required");
-                
-                if (configMemory.size() >= 18)
-                    smartSource = true;
-                
-                if (smartSource) {
-                    sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory);
-                } else {
-                    while (true) {
-                        sourceDirSrc = fetchDirectoryPrompt("source");
-                        if(trueFalsePrompt(
-                                "Is this the folder you wanted\n"
-                              + "to pick: " + sourceDirSrc.getName() + "?", 
-                                "Confirm Directory"));
-                            break;
-                    }
-                }
-                    
+                sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory);
             } else {
+                if(!destinationDirSrc.exists()) {
+                    JOptionPane.showMessageDialog(null,
+                    "There was an error finding\n"
+                      + "the Destination Folder.",
+                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+                    fetchDirectoryPrompt("destination");
+                }
                 
-                //Eventually set up to point back to new directories
-                    //Edit ImageSetPickerUI to support outside-of-method usage
+                if(!sourceDirSrc.exists()) {
+                    JOptionPane.showMessageDialog(null,
+                    "There was an error finding\n"
+                      + "the Source Folder.",
+                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+                    fetchDirectoryPrompt("source");
+                }
+                
+                if(imageSetNum == 0) {
+                    imageSetNumReset = true;
+                    JOptionPane.showMessageDialog(null,
+                    "There was an error finding\n"
+                      + "the amount of image sets.",
+                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+                    //ImageSetPickerUI
+                    imageSetNum = 3;
+                }
                 
                 System.out.println("Destination Exists: " + destinationDirSrc.exists());
                 System.out.println("Source Exists: " + sourceDirSrc.exists());
@@ -241,6 +248,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                   + "image set folders in that directory...\n"
                   + "Please try again!",
                     "Failed Finding Folders", JOptionPane.ERROR_MESSAGE);
+                writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
+                        sourceDirSrc.getAbsolutePath(), "FAILED", 
+                        "", smartSourceStatus);
                 return;
             }
             
@@ -254,6 +264,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                   + "Please use this program once you\n"
                   + "have organized some files.",
                     "No Images Found", JOptionPane.ERROR_MESSAGE);
+                writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
+                    sourceDirSrc.getAbsolutePath(), "FAILED", 
+                    "", smartSourceStatus);
                 return;
             }
             
@@ -277,6 +290,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                         "There was an error transferring\n"
                       + "your files... Please try again!",
                         "Image Transfer Failed", JOptionPane.ERROR_MESSAGE);
+                    writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
+                        sourceDirSrc.getAbsolutePath(), "FAILED", 
+                        "", smartSourceStatus);
                     return;
                 }
             }
@@ -291,6 +307,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                         "There was an error transferring\n"
                       + "your files... Please try again!",
                         "Image Transfer Failed", JOptionPane.ERROR_MESSAGE);
+                    writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
+                        sourceDirSrc.getAbsolutePath(), "FAILED", 
+                        "", smartSourceStatus);
                     return;
                 }
                     
@@ -298,15 +317,23 @@ public class WelcomeUI extends javax.swing.JFrame {
                 if (imageSetFiles.get(i).delete())
                     System.out.println("Deleted File " + 
                             imageSetFiles.get(i).getName());
-                else
+                else {
                     System.out.println("Failed To Delete File: " + 
                             imageSetFiles.get(i).getName());
+                    transferStatus = "PARTIAL";
+                }
             
             boolean userChoice = trueFalsePrompt(
                 "Would you like to set up a source folder now?", "Source Folder?");
-            if (userChoice){
-                newSourceDir = fetchDirectoryPrompt("source").getAbsolutePath();
-            } else {
+            if (userChoice)
+                while (true) {
+                    newSourceDir = fetchDirectoryPrompt("source").getAbsolutePath();
+                    if (trueFalsePrompt("Are you sure you want the\n"
+                            + "folder: " + newSourceDir + "?", 
+                            "Confirm New Source"))
+                        break;
+                }
+            else
                 while (true) {
                     sourceDirName = JOptionPane.showInputDialog(null,
                             "Since a source directory wasn't set, please\n"
@@ -325,21 +352,42 @@ public class WelcomeUI extends javax.swing.JFrame {
                           + "image set folders... Please try again!",
                             "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
                 }
-            }
             
             for (int i = 0; i < imageSetFolders.size(); i++) {
                 if (imageSetFolders.get(i).delete())
                     System.out.println("Deleted Folder " + 
                             imageSetFolders.get(i).getName());
-                else
+                else {
                     System.out.println("Failed To Delete Folder: " + 
                             imageSetFolders.get(i).getName());
+                    transferStatus = "PARTIAL";
+                }
                 
-                tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
-                if(!tempImageSetFolder.exists())
-                    if(tempImageSetFolder.mkdir())
-                        System.out.println("Created Image Set Folder " + i);
+                if (!imageSetNumReset) {
+                    tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
+                    if(!tempImageSetFolder.exists())
+                        if(tempImageSetFolder.mkdir())
+                            System.out.println("Created Image Set Folder " + i);
+                        else {
+                            System.out.println("Failed To Create Folder: " + 
+                                    tempImageSetFolder.getName());
+                            transferStatus = "PARTIAL";
+                        }
+                }
             }
+            
+            if (imageSetNumReset)
+                for (int i = 0; i < imageSetNum; i++) {
+                    tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
+                    if(!tempImageSetFolder.exists())
+                        if(tempImageSetFolder.mkdir())
+                            System.out.println("Created Image Set Folder " + i);
+                        else {
+                            System.out.println("Failed To Create Folder: " + 
+                                    tempImageSetFolder.getName());
+                            transferStatus = "PARTIAL";
+                        }
+                }
             
             if(!writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(),
                     sourceDirSrc.getAbsolutePath(), transferStatus, newSourceDir,
@@ -368,12 +416,11 @@ public class WelcomeUI extends javax.swing.JFrame {
                 imageSetPicker.setVisible(true);
             }
         }
-            
-        //Check to see if removed files get placed in recycle bin
-        //Search for "eventually set up to point back to new directories"
-        //Print Failed, Partial, and Full transfers to PAST TRANSFERS section
-            //transferStatus = "PARTIAL" on partial or "FAILED" on failed
+        
+        //Edit ImageSetPickerUI to support outside-of-method usage
         //Create Progress Window to keep track of transfers
+        //Check to see if removed files get placed in recycle bin
+        
     }//GEN-LAST:event_bringBackBtnActionPerformed
     
     public static void main(String args[]) {
@@ -510,26 +557,84 @@ public class WelcomeUI extends javax.swing.JFrame {
     }
     
     private File smartSourcePicker(File destination, ArrayList<String> configMemory){
+        ArrayList<String> usualSourceFolderAFiles = new ArrayList<>();
+        ArrayList<String> usualSourceFolderBFiles = new ArrayList<>();
+        ArrayList<String> usualSourceFolderCFiles = new ArrayList<>();
+        String[] months = {"January", "February", "March", "April", "May", "June", 
+            "July", "August", "September", "October", "November", "December"};
         File sourceDirSrc;
+        File smartSourcePicker;
+        File usualSourceFolderA;
+        File usualSourceFolderB;
+        File usualSourceFolderC;
+        double wins = 0;
+        double losses = 0;
+        double smartSourceScore = 0;
+        double smartSourceGoal = 0.5;
         
-        //check smart source percentage correct from .get(17) to < current size
-        //if above 50%, consider options and ask
-        //if below 50%, lurk and guess. If correct, add to log
+        for(int i = 0; i < configMemory.size(); i++)
+            if (configMemory.get(i).contains("SMART SOURCE: YES"))
+                wins++;
+            else if (configMemory.get(i).contains("SMART SOURCE: NO"))
+                losses++;
         
-        //Check Print Folders and check Destination Dir for similar names
-            //Only Enable "Smart Sources" After 10 Transfers
-            //Confirm Smart Selection Y/N
-            //Store Y/N
+        if(losses > 25)
+            smartSourceGoal = 0.75;
+        else if (losses > 50)
+            smartSourceGoal = 0.9;
         
-        while (true) {
-            sourceDirSrc = fetchDirectoryPrompt("source");
+        smartSourceScore = wins / (wins + losses);
+        
+        
+        smartSourcePicker = fetchDirectoryPrompt("source");
+        //Check Print Folders and usual source folder for similar names (If Past Transfers Exist)
+            //Iterate through configMemory looking for usual source folders (save 3)
+                //If source folder is used more than a quarter of the time
+                //iterate through source usual source folder for any matches
+                    //Add FOLDERS to usualSourceFolderA/B/CFiles
+                //If not present, check next most used source folder (x2)
+            //If No Names Similar...
+            //Check Months Arr and Past Transfers
+                //If more than half of the past transfers are months,
+                //use most recent month transfer to guess next month
+                    //Count usualSourceFolderA/B/CFiles that are months
+                    //Use last one to guess in A (most used)
+            
+            
+        if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
+            while (true) {
+                sourceDirSrc = fetchDirectoryPrompt("source");
+                if(trueFalsePrompt(
+                        "Is this the folder you wanted\n"
+                      + "to pick: " + sourceDirSrc.getName() + "?", 
+                        "Confirm Directory")) {
+                    if (sourceDirSrc.getAbsolutePath().equals(smartSourcePicker.getAbsolutePath()))
+                        smartSourceStatus = "SMART SOURCE: YES";
+                    else
+                        smartSourceStatus = "SMART SOURCE: NO";
+                    break;
+                }
+            }
+        else {
             if(trueFalsePrompt(
                     "Is this the folder you wanted\n"
-                  + "to pick: " + sourceDirSrc.getName() + "?", 
-                    "Confirm Directory"));
-                break;
+                    + "to pick: " + smartSourcePicker.getName() + "?",
+                    "Smart Source Picker")) {
+                smartSourceStatus = "SMART SOURCE: YES";
+                sourceDirSrc = smartSourcePicker;
+            }
+            else {
+                smartSourceStatus = "SMART SOURCE: NO";
+                while (true) {
+                    sourceDirSrc = fetchDirectoryPrompt("source");
+                    if(trueFalsePrompt(
+                            "Is this the folder you wanted\n"
+                          + "to pick: " + sourceDirSrc.getName() + "?", 
+                            "Confirm Directory"))
+                        break;
+                }
+            }
         }
-        
         return sourceDirSrc;
     }
 
