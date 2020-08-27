@@ -27,10 +27,17 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     File destinationDirSrc;
     File sourceDirSrc;
     JFileChooser fileChooser;
+    int outsideOfMethod = 0;
+    
     /**
      * Creates new form ImageSetPickerUI
      */
     public ImageSetPickerUI() {
+        initComponents();
+    }
+    
+    public ImageSetPickerUI(int outsideOfMethod) {
+        this.outsideOfMethod = outsideOfMethod;
         initComponents();
     }
 
@@ -339,7 +346,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
                     "Please pick a valid number of image\n"
                   + "sets to create!",
                     "Invalid Input", JOptionPane.ERROR_MESSAGE);
-        } else {
+        } else if (outsideOfMethod == 0) {
             this.setVisible(false);
             boolean userChoiceA = trueFalsePrompt("Desktop", "Elsewhere",
                     "Will these image sets be on the desktop\n"
@@ -368,6 +375,16 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
             } else {
                 completeSetup();
             }
+        } else if (outsideOfMethod == 1) {
+            this.setVisible(false);
+            WelcomeUI welcomeUI = new WelcomeUI();
+            welcomeUI.imageSetNumCatcher(Integer.valueOf(imageSetNum));
+            welcomeUI.setVisible(true);
+        } else {
+            this.setVisible(false);
+            SettingsUI settingsUI = new SettingsUI();
+            settingsUI.imageSetNumCatcher(Integer.valueOf(imageSetNum));
+            settingsUI.setVisible(true);
         }
     }//GEN-LAST:event_continueBtnActionPerformed
 

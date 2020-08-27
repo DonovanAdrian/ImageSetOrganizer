@@ -58,7 +58,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="resetConfigBtn" min="-2" pref="252" max="-2" attributes="0"/>
+                              <Component id="settingsBtn" min="-2" pref="252" max="-2" attributes="0"/>
                               <Component id="bringBackBtn" min="-2" pref="252" max="-2" attributes="0"/>
                               <Component id="exitBtn" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
                           </Group>
@@ -85,7 +85,7 @@
                   <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                   <Component id="bringBackBtn" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="resetConfigBtn" min="-2" max="-2" attributes="0"/>
+                  <Component id="settingsBtn" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="exitBtn" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="20" max="32767" attributes="0"/>
@@ -120,12 +120,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bringBackBtnActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="resetConfigBtn">
+        <Component class="javax.swing.JButton" name="settingsBtn">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Reset Config"/>
+            <Property name="text" type="java.lang.String" value="Settings"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetConfigBtnActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="settingsBtnActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="exitBtn">

@@ -25,6 +25,7 @@ import javax.swing.filechooser.FileSystemView;
 public class WelcomeUI extends javax.swing.JFrame {
     
     String smartSourceStatus = "";
+    int imageSetNumCatcher = 0;
 
     /**
      * Creates new form WelcomeUI
@@ -46,7 +47,7 @@ public class WelcomeUI extends javax.swing.JFrame {
         welcomeTextFieldA = new javax.swing.JLabel();
         welcomeTextFieldB = new javax.swing.JLabel();
         bringBackBtn = new javax.swing.JButton();
-        resetConfigBtn = new javax.swing.JButton();
+        settingsBtn = new javax.swing.JButton();
         exitBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -70,10 +71,10 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         });
 
-        resetConfigBtn.setText("Reset Config");
-        resetConfigBtn.addActionListener(new java.awt.event.ActionListener() {
+        settingsBtn.setText("Settings");
+        settingsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetConfigBtnActionPerformed(evt);
+                settingsBtnActionPerformed(evt);
             }
         });
 
@@ -93,7 +94,7 @@ public class WelcomeUI extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, welcomeUIjPanelLayout.createSequentialGroup()
                         .addGap(22, 22, 22)
                         .addGroup(welcomeUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(resetConfigBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(settingsBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(bringBackBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(exitBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(welcomeUIjPanelLayout.createSequentialGroup()
@@ -113,7 +114,7 @@ public class WelcomeUI extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addComponent(bringBackBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(resetConfigBtn)
+                .addComponent(settingsBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(exitBtn)
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -144,15 +145,11 @@ public class WelcomeUI extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_exitBtnActionPerformed
 
-    private void resetConfigBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetConfigBtnActionPerformed
-        boolean userChoice = trueFalsePrompt("Are you sure you want to reset"
-                + " the config?", "Are you sure?");
-        if (userChoice){
-            this.setVisible(false);
-            ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
-            imageSetPicker.setVisible(true);
-        }
-    }//GEN-LAST:event_resetConfigBtnActionPerformed
+    private void settingsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsBtnActionPerformed
+        this.setVisible(false);
+        SettingsUI settingsUI = new SettingsUI();
+        settingsUI.setVisible(true);
+    }//GEN-LAST:event_settingsBtnActionPerformed
 
     private void bringBackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bringBackBtnActionPerformed
         ArrayList<File> imageSetFolders = new ArrayList<>();
@@ -199,40 +196,43 @@ public class WelcomeUI extends javax.swing.JFrame {
                 System.out.println("Source Set Up Required");
                 sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory);
             } else {
+                System.out.println("Destination Exists: " + destinationDirSrc.exists());
+                System.out.println("Source Exists: " + sourceDirSrc.exists());
+                System.out.println("Image Set #: " + imageSetNum);
+                
                 if(!destinationDirSrc.exists()) {
                     JOptionPane.showMessageDialog(null,
                     "There was an error finding\n"
-                      + "the Destination Folder.",
+                  + "the Destination Folder.",
                     "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
-                    fetchDirectoryPrompt("destination");
+                    destinationDirSrc = fetchDirectoryPrompt("destination");
                 }
                 
                 if(!sourceDirSrc.exists()) {
                     JOptionPane.showMessageDialog(null,
                     "There was an error finding\n"
-                      + "the Source Folder.",
+                  + "the Source Folder.",
                     "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
-                    fetchDirectoryPrompt("source");
+                    sourceDirSrc = fetchDirectoryPrompt("source");
                 }
                 
                 if(imageSetNum == 0) {
                     imageSetNumReset = true;
                     JOptionPane.showMessageDialog(null,
                     "There was an error finding\n"
-                      + "the amount of image sets.",
+                  + "the amount of image sets.\n"
+                  + "Please reset the number of\n"
+                  + "image sets on the following\n"
+                  + "window.",
                     "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
-                    //ImageSetPickerUI
-                    imageSetNum = 3;
+                    this.setVisible(false);
+                    ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(1);
+                    imageSetPicker.setVisible(true);
                 }
                 
                 System.out.println("Destination Exists: " + destinationDirSrc.exists());
                 System.out.println("Source Exists: " + sourceDirSrc.exists());
                 System.out.println("Image Set #: " + imageSetNum);
-                JOptionPane.showMessageDialog(null,
-                    "There was an error reading\n"
-                  + "the config... Please try again!",
-                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
-                return;
             }
             
             for (final File fileEntry : destinationDirSrc.listFiles())
@@ -246,7 +246,7 @@ public class WelcomeUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null,
                     "There was an error finding the\n"
                   + "image set folders in that directory...\n"
-                  + "Please try again!",
+                  + "Try resetting the destination in the settings.",
                     "Failed Finding Folders", JOptionPane.ERROR_MESSAGE);
                 writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
                         sourceDirSrc.getAbsolutePath(), "FAILED", 
@@ -255,8 +255,10 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
             
             for (int i = 0; i < imageSetFolders.size(); i++)
-                for (final File fileEntry : imageSetFolders.get(i).listFiles())
+                for (final File fileEntry : imageSetFolders.get(i).listFiles()) {
                     imageSetFiles.add(fileEntry);
+                    System.out.println("Added: " + fileEntry.getName());
+                }
             
             if (imageSetFiles.isEmpty()) {
                 JOptionPane.showMessageDialog(null,
@@ -282,6 +284,8 @@ public class WelcomeUI extends javax.swing.JFrame {
                     
                     if (fileQueuePath != null) {
                         completedTransfers.add(fileQueue);
+                    } else {
+                        System.out.println("Error transferring: " + imageSetFiles.get(i).getName());
                     }
                 } catch (IOException ioe) {
                     for (int z = 0; z < completedTransfers.size(); z++)
@@ -295,6 +299,19 @@ public class WelcomeUI extends javax.swing.JFrame {
                         "", smartSourceStatus);
                     return;
                 }
+            }
+            
+            if (completedTransfers.size() != imageSetFiles.size()) {
+                for (int z = 0; z < completedTransfers.size(); z++)
+                        completedTransfers.get(z).delete();
+                    JOptionPane.showMessageDialog(null,
+                        "There was an error transferring\n"
+                      + "your files... Please try again!",
+                        "Image Transfer Failed", JOptionPane.ERROR_MESSAGE);
+                    writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(), 
+                        sourceDirSrc.getAbsolutePath(), "FAILED", 
+                        "", smartSourceStatus);
+                    return;
             }
             
             for (int i = 0; i < completedTransfers.size(); i++)
@@ -324,12 +341,13 @@ public class WelcomeUI extends javax.swing.JFrame {
                 }
             
             boolean userChoice = trueFalsePrompt(
-                "Would you like to set up a source folder now?", "Source Folder?");
+                "Would you like to set up a source folder for your next transfer?",
+                    "Source Folder?");
             if (userChoice)
                 while (true) {
                     newSourceDir = fetchDirectoryPrompt("source").getAbsolutePath();
-                    if (trueFalsePrompt("Are you sure you want the\n"
-                            + "folder: " + newSourceDir + "?", 
+                    if (trueFalsePrompt("Are you sure you want the folder:\n"
+                            + newSourceDir + "?", 
                             "Confirm New Source"))
                         break;
                 }
@@ -342,11 +360,10 @@ public class WelcomeUI extends javax.swing.JFrame {
                             JOptionPane.PLAIN_MESSAGE);
                     if(userInputValid(sourceDirName)) {
                         if(trueFalsePrompt(
-                                "Are you sure you want the\nname " 
+                                "Are you sure you want the name:\n"
                                + sourceDirName + "?", "Confirm New Name"))
                             break;
-                    }
-                    else
+                    } else
                         JOptionPane.showMessageDialog(null,
                             "Please enter a valid name for the\n"
                           + "image set folders... Please try again!",
@@ -364,7 +381,8 @@ public class WelcomeUI extends javax.swing.JFrame {
                 }
                 
                 if (!imageSetNumReset) {
-                    tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
+                    tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                            sourceDirName + " - " + i + " Print");
                     if(!tempImageSetFolder.exists())
                         if(tempImageSetFolder.mkdir())
                             System.out.println("Created Image Set Folder " + i);
@@ -378,7 +396,8 @@ public class WelcomeUI extends javax.swing.JFrame {
             
             if (imageSetNumReset)
                 for (int i = 0; i < imageSetNum; i++) {
-                    tempImageSetFolder = new File(destinationDirSrc + "/" + sourceDirName + " - " + i + " Print");
+                    tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                            sourceDirName + " - " + i + " Print");
                     if(!tempImageSetFolder.exists())
                         if(tempImageSetFolder.mkdir())
                             System.out.println("Created Image Set Folder " + i);
@@ -417,7 +436,7 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         }
         
-        //Edit ImageSetPickerUI to support outside-of-method usage
+        //Complete Settings Window
         //Create Progress Window to keep track of transfers
         //Check to see if removed files get placed in recycle bin
         
@@ -448,6 +467,10 @@ public class WelcomeUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new WelcomeUI().setVisible(true);
         });
+    }
+    
+    public void imageSetNumCatcher(int imageSetNum){
+        imageSetNumCatcher = imageSetNum;
     }
     
     private static boolean trueFalsePrompt(String prompt, String title){
@@ -641,7 +664,7 @@ public class WelcomeUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bringBackBtn;
     private javax.swing.JButton exitBtn;
-    private javax.swing.JButton resetConfigBtn;
+    private javax.swing.JButton settingsBtn;
     private javax.swing.JLabel welcomeTextFieldA;
     private javax.swing.JLabel welcomeTextFieldB;
     private javax.swing.JPanel welcomeUIjPanel;
