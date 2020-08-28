@@ -379,34 +379,20 @@ public class WelcomeUI extends javax.swing.JFrame {
                             imageSetFolders.get(i).getName());
                     transferStatus = "PARTIAL";
                 }
-                
-                if (!imageSetNumReset) {
-                    tempImageSetFolder = new File(destinationDirSrc + "/" + 
-                            sourceDirName + " - " + i + " Print");
-                    if(!tempImageSetFolder.exists())
-                        if(tempImageSetFolder.mkdir())
-                            System.out.println("Created Image Set Folder " + i);
-                        else {
-                            System.out.println("Failed To Create Folder: " + 
-                                    tempImageSetFolder.getName());
-                            transferStatus = "PARTIAL";
-                        }
-                }
             }
             
-            if (imageSetNumReset)
-                for (int i = 0; i < imageSetNum; i++) {
-                    tempImageSetFolder = new File(destinationDirSrc + "/" + 
-                            sourceDirName + " - " + i + " Print");
-                    if(!tempImageSetFolder.exists())
-                        if(tempImageSetFolder.mkdir())
-                            System.out.println("Created Image Set Folder " + i);
-                        else {
-                            System.out.println("Failed To Create Folder: " + 
-                                    tempImageSetFolder.getName());
-                            transferStatus = "PARTIAL";
-                        }
-                }
+            for (int i = 0; i < imageSetNum; i++) {
+                tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                        sourceDirName + " - " + i + " Print");
+                if(!tempImageSetFolder.exists())
+                    if(tempImageSetFolder.mkdir())
+                        System.out.println("Created Image Set Folder " + i);
+                    else {
+                        System.out.println("Failed To Create Folder: " + 
+                                tempImageSetFolder.getName());
+                        transferStatus = "PARTIAL";
+                    }
+            }
             
             if(!writeDataToConfig(configMemory, destinationDirSrc.getAbsolutePath(),
                     sourceDirSrc.getAbsolutePath(), transferStatus, newSourceDir,
@@ -436,6 +422,7 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         }
         
+        //Complete Smart Source Picker
         //Complete Settings Window
         //Create Progress Window to keep track of transfers
         //Check to see if removed files get placed in recycle bin
@@ -580,26 +567,29 @@ public class WelcomeUI extends javax.swing.JFrame {
     }
     
     private File smartSourcePicker(File destination, ArrayList<String> configMemory){
-        ArrayList<String> usualSourceFolderAFiles = new ArrayList<>();
-        ArrayList<String> usualSourceFolderBFiles = new ArrayList<>();
-        ArrayList<String> usualSourceFolderCFiles = new ArrayList<>();
+        ArrayList<String> sourceMonthFiles = new ArrayList<>();
+        ArrayList<Integer> sourceMonthTracker = new ArrayList<>();
+        String[] configMemorySplit;
         String[] months = {"January", "February", "March", "April", "May", "June", 
-            "July", "August", "September", "October", "November", "December"};
+            "July", "August", "September", "October", "November", "December",
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+            "Nov", "Dec"};
         File sourceDirSrc;
         File smartSourcePicker;
-        File usualSourceFolderA;
-        File usualSourceFolderB;
-        File usualSourceFolderC;
         double wins = 0;
         double losses = 0;
         double smartSourceScore = 0;
         double smartSourceGoal = 0.5;
+        int sourceNameIndex = -1;
+        int sourceNameScore = 0;
+        int sourceMonthScore = 0;
         
-        for(int i = 0; i < configMemory.size(); i++)
+        for(int i = 0; i < configMemory.size(); i++) {
             if (configMemory.get(i).contains("SMART SOURCE: YES"))
                 wins++;
             else if (configMemory.get(i).contains("SMART SOURCE: NO"))
                 losses++;
+        }
         
         if(losses > 25)
             smartSourceGoal = 0.75;
@@ -610,18 +600,11 @@ public class WelcomeUI extends javax.swing.JFrame {
         
         
         smartSourcePicker = fetchDirectoryPrompt("source");
-        //Check Print Folders and usual source folder for similar names (If Past Transfers Exist)
-            //Iterate through configMemory looking for usual source folders (save 3)
-                //If source folder is used more than a quarter of the time
-                //iterate through source usual source folder for any matches
-                    //Add FOLDERS to usualSourceFolderA/B/CFiles
-                //If not present, check next most used source folder (x2)
-            //If No Names Similar...
-            //Check Months Arr and Past Transfers
-                //If more than half of the past transfers are months,
-                //use most recent month transfer to guess next month
-                    //Count usualSourceFolderA/B/CFiles that are months
-                    //Use last one to guess in A (most used)
+        //Check for year in most recent transfer
+            //Check for month in most recent transfer
+                //Iterate and suggest next month/year if such a folder exists
+                    //(Search parent folder)
+        //If no year/month in most recent transfer ("SMART SOURCE: IGNORE")
             
             
         if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
