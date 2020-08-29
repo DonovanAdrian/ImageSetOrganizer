@@ -8,7 +8,9 @@ package imagesetorganizer.presentation;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -21,6 +23,7 @@ import javax.swing.filechooser.FileSystemView;
 public class SettingsUI extends javax.swing.JFrame {
 
     static ArrayList<String> configMemory = new ArrayList<>();
+    static ArrayList<String> configChanges = new ArrayList<>();
     static File destinationDirSrc;
     static File sourceDirSrc;
     static JFileChooser fileChooser;
@@ -66,8 +69,18 @@ public class SettingsUI extends javax.swing.JFrame {
         });
 
         destinationBtn.setText("Change Destination");
+        destinationBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                destinationBtnActionPerformed(evt);
+            }
+        });
 
         sourceBtn.setText("Change Source");
+        sourceBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sourceBtnActionPerformed(evt);
+            }
+        });
 
         imageSetNumBtn.setText("Change Amount Of Image Sets");
         imageSetNumBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -157,15 +170,70 @@ public class SettingsUI extends javax.swing.JFrame {
         this.setVisible(false);
         ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(2);
         imageSetPicker.setVisible(true);
+        if (!configChanges.contains("ImageSetNum"))
+            configChanges.add("ImageSetNum");
     }//GEN-LAST:event_imageSetNumBtnActionPerformed
 
     private void closeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeBtnActionPerformed
-        //Confirm all changes (changes arr), write to config, and return to welcome screen
-            //If config error, advise resetting the config
+        String changes = "";
+        boolean updateConfig = true;
+        
+        if(configError)
+            JOptionPane.showMessageDialog(null,
+                "Because there was an error\n"
+              + "reading the config, please\n"
+              + "reset the config. If you do\n"
+              + "not reset the config, this\n"
+              + "program may not work properly.",
+                "Please Reset Config", JOptionPane.ERROR_MESSAGE);
+        
+        if(configChanges.contains("ImageSetNum")) {
+            configMemory.set(2, String.valueOf(imageSetNumCatcher));
+            changes += " number of image sets";
+        }
+        if(configChanges.contains("DestinationDirSrc")) {
+            configMemory.set(3, destinationDirSrc.getAbsolutePath());
+            if(configChanges.size() == 2)
+                changes += " and the";
+            else if(configChanges.size() == 3)
+                changes += ",";
+            changes += " destination folder";
+        }
+        if(configChanges.contains("SourceDirSrc")) {
+            configMemory.set(4, sourceDirSrc.getAbsolutePath());
+            if(configChanges.size() == 2)
+                changes += " and the";
+            else if(configChanges.size() == 3)
+                changes += ", and the";
+            changes += " source folder";
+        }
+        
+        if(!configChanges.isEmpty()){
+            updateConfig = trueFalsePrompt(
+                  "Since you updated the\n" + changes + ",\n"
+                + "the config can now be updated.\n\n"
+                + "Would you like to update the config?",
+                  "Update Config?");
+        }
+        
+        if(updateConfig)
+            writeToConfig();
         this.setVisible(false);
         WelcomeUI welcomeUI = new WelcomeUI();
         welcomeUI.setVisible(true);
     }//GEN-LAST:event_closeBtnActionPerformed
+
+    private void sourceBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceBtnActionPerformed
+        sourceDirSrc = fetchDirectoryPrompt("source");
+        if (!configChanges.contains("SourceDirSrc"))
+            configChanges.add("SourceDirSrc");
+    }//GEN-LAST:event_sourceBtnActionPerformed
+
+    private void destinationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationBtnActionPerformed
+        destinationDirSrc = fetchDirectoryPrompt("destination");
+        if (!configChanges.contains("DestinationDirSrc"))
+            configChanges.add("DestinationDirSrc");
+    }//GEN-LAST:event_destinationBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -222,6 +290,36 @@ public class SettingsUI extends javax.swing.JFrame {
               + "config.",
                 "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
             configError = true;
+        }
+    }
+    
+    private static void writeToConfig(){
+        File configFile = new File("config.txt");
+        
+        if (configFile.exists() && configFile.isFile() && configFile.canWrite())
+            try {
+                configFile.delete();
+                configFile.createNewFile();
+                FileWriter fWriter = new FileWriter(configFile);
+                PrintWriter writer = new PrintWriter(fWriter);
+                for (int i = 0; i < configMemory.size(); i++)
+                    writer.println(configMemory.get(i));
+                writer.close();
+            } catch (IOException ioe){
+                System.out.println("Error: Config Not Written...");
+                JOptionPane.showMessageDialog(null,
+                        "There was an error writing\n"
+                      + "to the config file... Config\n"
+                      + "not changed.",
+                        "Config Write Error", JOptionPane.ERROR_MESSAGE);
+            }
+        else {
+            System.out.println("Config File Does Not Exist");
+            JOptionPane.showMessageDialog(null,
+                    "There was an error writing\n"
+                  + "to the config file... Config\n"
+                  + "not changed.",
+                    "Config Does Not Exist", JOptionPane.ERROR_MESSAGE);
         }
     }
     

@@ -423,8 +423,8 @@ public class WelcomeUI extends javax.swing.JFrame {
         }
         
         //Complete Smart Source Picker
-        //Complete Settings Window
-        //Create Progress Window to keep track of transfers
+        //Complete Progress Window
+            //"Please Wait... Transferring Files"
         //Check to see if removed files get placed in recycle bin
         
     }//GEN-LAST:event_bringBackBtnActionPerformed
