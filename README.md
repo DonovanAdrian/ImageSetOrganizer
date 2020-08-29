@@ -6,7 +6,7 @@
 - [ ] Set Up Basic/Custom UI
   - [ ] Welcome Window
   - [ ] Progress Window
-  - [ ] Settings Window
+  - [x] Settings Window
   - [x] Calculator-esque UI Window
   - [x] Yes/No Dialog Window
   - [x] Directory Selection Window
