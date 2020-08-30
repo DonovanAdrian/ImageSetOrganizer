@@ -26,6 +26,7 @@ public class WelcomeUI extends javax.swing.JFrame {
     
     String smartSourceStatus = "";
     int imageSetNumCatcher = 0;
+    ProgressUI progWin = new ProgressUI();
 
     /**
      * Creates new form WelcomeUI
@@ -254,11 +255,18 @@ public class WelcomeUI extends javax.swing.JFrame {
                 return;
             }
             
-            for (int i = 0; i < imageSetFolders.size(); i++)
+            progWin.updateDescription("Please Wait...\nCollecting Files...");
+            progWin.updateMaximum(imageSetFolders.size());
+            progWin.openWindow();
+            for (int i = 0; i < imageSetFolders.size(); i++) {
                 for (final File fileEntry : imageSetFolders.get(i).listFiles()) {
                     imageSetFiles.add(fileEntry);
                     System.out.println("Added: " + fileEntry.getName());
                 }
+                progWin.updateBar(i);
+            }
+            progWin.closeWindow();
+            
             
             if (imageSetFiles.isEmpty()) {
                 JOptionPane.showMessageDialog(null,
@@ -272,6 +280,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                 return;
             }
             
+            progWin.updateDescription("Please Wait...\nCopying Files...");
+            progWin.updateMaximum(imageSetFiles.size());
+            progWin.openWindow();
             for (int i = 0; i < imageSetFiles.size(); i++) {
                 fileQueue = new File(
                         sourceDirSrc.getAbsolutePath() + "/" + 
@@ -299,7 +310,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                         "", smartSourceStatus);
                     return;
                 }
+                progWin.updateBar(i);
             }
+            progWin.closeWindow();
             
             if (completedTransfers.size() != imageSetFiles.size()) {
                 for (int z = 0; z < completedTransfers.size(); z++)
@@ -314,7 +327,10 @@ public class WelcomeUI extends javax.swing.JFrame {
                     return;
             }
             
-            for (int i = 0; i < completedTransfers.size(); i++)
+            progWin.updateDescription("Please Wait...\nChecking Files...");
+            progWin.updateMaximum(imageSetFiles.size());
+            progWin.openWindow();
+            for (int i = 0; i < completedTransfers.size(); i++) {
                 if (!completedTransfers.get(i).exists() ||
                     !completedTransfers.get(i).canRead() ||
                     !completedTransfers.get(i).canWrite()) {
@@ -329,8 +345,14 @@ public class WelcomeUI extends javax.swing.JFrame {
                         "", smartSourceStatus);
                     return;
                 }
-                    
-            for (int i = 0; i < imageSetFiles.size(); i++)
+                progWin.updateBar(i);
+            }
+            progWin.closeWindow();
+            
+            progWin.updateDescription("Please Wait...\nRemoving Old Files...");
+            progWin.updateMaximum(imageSetFiles.size());
+            progWin.openWindow();
+            for (int i = 0; i < imageSetFiles.size(); i++) {
                 if (imageSetFiles.get(i).delete())
                     System.out.println("Deleted File " + 
                             imageSetFiles.get(i).getName());
@@ -339,6 +361,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                             imageSetFiles.get(i).getName());
                     transferStatus = "PARTIAL";
                 }
+                progWin.updateBar(i);
+            }
+            progWin.closeWindow();
             
             boolean userChoice = trueFalsePrompt(
                 "Would you like to set up a source folder for your next transfer?",
@@ -423,8 +448,6 @@ public class WelcomeUI extends javax.swing.JFrame {
         }
         
         //Complete Smart Source Picker
-        //Complete Progress Window
-            //"Please Wait... Transferring Files"
         //Check to see if removed files get placed in recycle bin
         
     }//GEN-LAST:event_bringBackBtnActionPerformed

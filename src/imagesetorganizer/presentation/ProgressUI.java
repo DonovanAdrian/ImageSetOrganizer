@@ -20,11 +20,16 @@ public class ProgressUI extends javax.swing.JFrame {
         initComponents();
     }
     
-    public ProgressUI(String labelInput, int maximumInput) {//Add data here to input mainLabel String
+    public ProgressUI(String labelInput, int maximumInput) {
         if(!labelInput.equals(""))
             progressTextField.setText(labelInput);
+        else
+            progressTextField.setText("Please Wait...");
         if(maximumInput != 0)
             MAXIMUM = maximumInput;
+        
+        progressBar.setMinimum(MINIMUM);
+        progressBar.setMaximum(MAXIMUM);
     }
 
     /**
@@ -127,6 +132,24 @@ public class ProgressUI extends javax.swing.JFrame {
     
     public void updateBar(int newValue) {
         progressBar.setValue(newValue);
+    }
+    
+    public void updateDescription(String labelInput) {
+        if(!labelInput.equals(""))
+            progressTextField.setText(labelInput);
+        else
+            progressTextField.setText("Please Wait...");
+    }
+    
+    public void updateMaximum(int newMaxValue) {
+        if (newMaxValue > 0)
+            progressBar.setMaximum(newMaxValue);
+        else
+            progressBar.setMaximum(MAXIMUM);
+    }
+    
+    public void openWindow(){
+        this.setVisible(true);
     }
 
     public void closeWindow(){
