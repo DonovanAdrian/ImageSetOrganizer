@@ -4,7 +4,8 @@
 
 ## ***Task List***
 - [ ] Set Up Basic/Custom UI
-  - [ ] Welcome Window
+  - [ ] Stats Window
+  - [x] Welcome Window
   - [x] Progress Window
   - [x] Settings Window
   - [x] Calculator-esque UI Window
@@ -13,7 +14,7 @@
   - [x] Basic Information Window
   - [x] Basic Error Window
 - [x] Set Up Logic
-- [ ] Set Up Smart Source Guessing
+- [x] Set Up Smart Source Guessing
 - [ ] Test Program
 
 
