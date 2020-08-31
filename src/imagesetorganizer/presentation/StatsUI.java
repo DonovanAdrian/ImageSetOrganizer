@@ -5,17 +5,27 @@
  */
 package imagesetorganizer.presentation;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author DoughnutVan
  */
 public class StatsUI extends javax.swing.JFrame {
 
+    ArrayList<String> configMemory = new ArrayList<>();
+    
     /**
      * Creates new form StatsUI
      */
     public StatsUI() {
         initComponents();
+    }
+    
+    public StatsUI(ArrayList<String> configMemory) {
+        initComponents();
+        this.configMemory = configMemory;
+        initializeLabels();
     }
 
     /**
@@ -28,7 +38,7 @@ public class StatsUI extends javax.swing.JFrame {
     private void initComponents() {
 
         statsUIjPanel = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        closeBtn = new javax.swing.JButton();
         statsUITitleLabel = new javax.swing.JLabel();
         totalTransferLabel = new javax.swing.JLabel();
         smartScoreLabel = new javax.swing.JLabel();
@@ -49,7 +59,12 @@ public class StatsUI extends javax.swing.JFrame {
 
         statsUIjPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jButton1.setText("Close");
+        closeBtn.setText("Close");
+        closeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeBtnActionPerformed(evt);
+            }
+        });
 
         statsUITitleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statsUITitleLabel.setText("Statistics");
@@ -109,7 +124,7 @@ public class StatsUI extends javax.swing.JFrame {
                     .addGroup(statsUIjPanelLayout.createSequentialGroup()
                         .addGap(100, 100, 100)
                         .addGroup(statsUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                            .addComponent(closeBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                             .addComponent(statsUITitleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(statsUIjPanelLayout.createSequentialGroup()
@@ -153,7 +168,7 @@ public class StatsUI extends javax.swing.JFrame {
                     .addComponent(partialTransfersLabel)
                     .addComponent(partialTransfers))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(closeBtn)
                 .addContainerGap())
         );
 
@@ -178,6 +193,10 @@ public class StatsUI extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void closeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeBtnActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_closeBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -194,29 +213,59 @@ public class StatsUI extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(StatsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(StatsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(StatsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException |
+                IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(StatsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new StatsUI().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new StatsUI().setVisible(true);
         });
+    }
+    
+    private void initializeLabels(){
+        int totalTransfersInt = 0;
+        int smartScoreInt;
+        int smartWinsInt = 0;
+        int smartLossesInt = 0;
+        int smartIgnoresInt = 0;
+        int failedTransfersInt = 0;
+        int partialTransfersInt = 0;
+        
+        for (int i = 0; i < configMemory.size(); i++) {
+            if (configMemory.get(i).contains("SMART SOURCE: YES"))
+                smartWinsInt++;
+            else if (configMemory.get(i).contains("SMART SOURCE: NO"))
+                smartLossesInt++;
+            else if (configMemory.get(i).contains("SMART SOURCE: IGNORE"))
+                smartIgnoresInt++;
+            else if (configMemory.get(i).contains("FAILED"))
+                failedTransfersInt++;
+            else if (configMemory.get(i).contains("PARTIAL"))
+                partialTransfersInt++;
+            else if (i > 8)
+                totalTransfersInt++;
+        }
+        
+        smartScoreInt = smartWinsInt / (smartWinsInt + smartLossesInt);
+        
+        totalTransfers.setText(String.valueOf(totalTransfersInt));
+        smartScore.setText(String.valueOf(smartScoreInt));
+        smartWins.setText(String.valueOf(smartWinsInt));
+        smartLosses.setText(String.valueOf(smartLossesInt));
+        smartIgnores.setText(String.valueOf(smartIgnoresInt));
+        failedTransfers.setText(String.valueOf(failedTransfersInt));
+        partialTransfers.setText(String.valueOf(partialTransfersInt));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton closeBtn;
     private javax.swing.JLabel failedTransfers;
     private javax.swing.JLabel failedTransfersLabel;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel partialTransfers;
     private javax.swing.JLabel partialTransfersLabel;
     private javax.swing.JLabel smartIgnores;

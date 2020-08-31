@@ -164,7 +164,7 @@ public class WelcomeUI extends javax.swing.JFrame {
         File destinationDirSrc;
         File sourceDirSrc;
         File fileQueue;
-        int imageSetNum = 0;
+        int imageSetNum;
         String newSourceDir = "";
         String sourceDirName = "";
         String transferStatus = "NOMINAL";
@@ -603,15 +603,15 @@ public class WelcomeUI extends javax.swing.JFrame {
         File smartSourceParent;
         double wins = 0;
         double losses = 0;
-        double smartSourceScore = 0;
+        double smartSourceScore;
         double smartSourceGoal = 0.5;
         int sourceNameIndex = -1;
         int sourceNameScore = 0;
         int sourceMonthScore = 0;
         int mostRecentMonth = -1;
-        int nextMonth = 0;
+        int nextMonth;
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        String[] mostRecentTransfer = {};
+        String[] mostRecentTransfer;
         String mostRecentSource = "";
         boolean smartSourceIgnore = true;
         
@@ -662,24 +662,12 @@ public class WelcomeUI extends javax.swing.JFrame {
                             (fileEntry.getName().contains(String.valueOf(currentYear)) ||
                             fileEntry.getName().contains(String.valueOf(currentYear--))))
                         smartSourcePicker = fileEntry;
-                if (smartSourcePicker == null)
-                    smartSourceIgnore = true;
             }
         }
         
         smartSourceScore = wins / (wins + losses);
             
-        if(smartSourceIgnore) {
-            while (true) {
-                sourceDirSrc = fetchDirectoryPrompt("source");
-                if(trueFalsePrompt(
-                        "Is this the folder you wanted\n"
-                      + "to pick: " + sourceDirSrc.getName() + "?", 
-                        "Confirm Directory"))
-                    break;
-            }
-            smartSourceStatus = "SMART SOURCE: IGNORE";
-        } else
+        if (smartSourcePicker != null)
             if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
                 while (true) {
                     sourceDirSrc = fetchDirectoryPrompt("source");
@@ -687,14 +675,15 @@ public class WelcomeUI extends javax.swing.JFrame {
                             "Is this the folder you wanted\n"
                           + "to pick: " + sourceDirSrc.getName() + "?", 
                             "Confirm Directory")) {
-                        if (sourceDirSrc.getAbsolutePath().equals(smartSourcePicker.getAbsolutePath()))
+                        if (sourceDirSrc.getAbsolutePath().equals(
+                                smartSourcePicker.getAbsolutePath()))
                             smartSourceStatus = "SMART SOURCE: YES";
                         else
                             smartSourceStatus = "SMART SOURCE: NO";
                         break;
                     }
                 }
-            else {
+            else
                 if(trueFalsePrompt(
                         "Is this the folder you wanted\n"
                         + "to pick: " + smartSourcePicker.getName() + "?",
@@ -712,7 +701,17 @@ public class WelcomeUI extends javax.swing.JFrame {
                             break;
                     }
                 }
+        else {
+            while (true) {
+                sourceDirSrc = fetchDirectoryPrompt("source");
+                if(trueFalsePrompt(
+                        "Is this the folder you wanted\n"
+                      + "to pick: " + sourceDirSrc.getName() + "?", 
+                        "Confirm Directory"))
+                    break;
             }
+            smartSourceStatus = "SMART SOURCE: IGNORE";
+        }
         return sourceDirSrc;
     }
     
@@ -727,7 +726,7 @@ public class WelcomeUI extends javax.swing.JFrame {
         String mostRecentSource;
         int monthScore = 0;
         int yearScore = 0;
-        double checkMoreScore = 0.0;
+        double checkMoreScore;
         
         for (int i = configMemory.size() - 1; i >= distance; i--){
             configMemorySplit = configMemory.get(i).split(">>>");
@@ -735,9 +734,10 @@ public class WelcomeUI extends javax.swing.JFrame {
             mostRecentSource = mostRecentSourceFile.getName();
             if (mostRecentSource.matches("^[12][0-9]{3}$"))
                 yearScore++;
-            for(int m = 0; m < months.length; m++)
-                        if (mostRecentSource.contains(months[m]))
-                            monthScore++;
+            for (String month : months) {
+                if (mostRecentSource.contains(month))
+                    monthScore++;
+            }
         }
         
         checkMoreScore = (monthScore + yearScore) / distance;

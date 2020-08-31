@@ -248,8 +248,17 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_destinationBtnActionPerformed
 
     private void statsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statsBtnActionPerformed
-        StatsUI statsUI = new StatsUI();
-        statsUI.setVisible(true);
+        if (!configError) {
+            StatsUI statsUI = new StatsUI(configMemory);
+            statsUI.setVisible(true);
+        } else
+            JOptionPane.showMessageDialog(null,
+                "Because there was an error\n"
+              + "reading the config, this\n"
+              + "page is inaccessible. If you\n"
+              + "do not reset the config, this\n"
+              + "program may not work properly.",
+                "Please Reset Config", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_statsBtnActionPerformed
 
     /**

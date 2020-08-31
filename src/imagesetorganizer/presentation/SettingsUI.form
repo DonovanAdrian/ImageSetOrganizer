@@ -67,12 +67,10 @@
                   <EmptySpace min="0" pref="29" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
                       <Component id="statsBtn" pref="245" max="32767" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="imageSetNumBtn" pref="245" max="32767" attributes="0"/>
-                          <Component id="destinationBtn" alignment="0" max="32767" attributes="0"/>
-                          <Component id="sourceBtn" alignment="0" max="32767" attributes="0"/>
-                          <Component id="resetConfigBtn" max="32767" attributes="0"/>
-                      </Group>
+                      <Component id="imageSetNumBtn" pref="245" max="32767" attributes="0"/>
+                      <Component id="destinationBtn" alignment="0" max="32767" attributes="0"/>
+                      <Component id="sourceBtn" alignment="0" max="32767" attributes="0"/>
+                      <Component id="resetConfigBtn" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               </Group>

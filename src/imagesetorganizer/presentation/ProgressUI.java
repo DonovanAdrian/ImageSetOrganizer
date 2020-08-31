@@ -21,6 +21,7 @@ public class ProgressUI extends javax.swing.JFrame {
     }
     
     public ProgressUI(String labelInput, int maximumInput) {
+        initComponents();
         if(!labelInput.equals(""))
             progressTextField.setText(labelInput);
         else
