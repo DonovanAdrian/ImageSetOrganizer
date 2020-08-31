@@ -3,19 +3,11 @@
 
 
 ## ***Task List***
-- [ ] Set Up Basic/Custom UI
-  - [ ] Stats Window
-  - [x] Welcome Window
-  - [x] Progress Window
-  - [x] Settings Window
-  - [x] Calculator-esque UI Window
-  - [x] Yes/No Dialog Window
-  - [x] Directory Selection Window
-  - [x] Basic Information Window
-  - [x] Basic Error Window
+- [x] Set Up Basic/Custom UI
 - [x] Set Up Logic
 - [x] Set Up Smart Source Guessing
 - [ ] Test Program
+- [ ] Clean Up Code
 
 
 ## Welcome!
