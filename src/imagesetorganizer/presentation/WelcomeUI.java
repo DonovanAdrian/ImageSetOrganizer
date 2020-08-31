@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Calendar;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileSystemView;
@@ -447,8 +448,7 @@ public class WelcomeUI extends javax.swing.JFrame {
             }
         }
         
-        //Complete Smart Source Picker
-        //Check to see if removed files get placed in recycle bin
+        //Complete Stats Page
         
     }//GEN-LAST:event_bringBackBtnActionPerformed
     
@@ -548,9 +548,9 @@ public class WelcomeUI extends javax.swing.JFrame {
             configMemory.add("***PAST TRANSFERS***");
         }
         configMemory.add(destination 
-                    + " >>>TRANSFERRED TO>>> " 
+                    + ">>>TRANSFERRED BACK TO>>>" 
                     + source 
-                    + " >>>STATUS: " + status + ">>> " + smartSourceStatus);
+                    + ">>>STATUS: " + status + ">>>" + smartSourceStatus);
         
         if (configFile.exists() && configFile.isFile() && configFile.canWrite())
             try {
@@ -598,7 +598,9 @@ public class WelcomeUI extends javax.swing.JFrame {
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
             "Nov", "Dec"};
         File sourceDirSrc;
-        File smartSourcePicker;
+        File smartSourcePicker = null;
+        File smartSourceTemp = null;
+        File smartSourceParent;
         double wins = 0;
         double losses = 0;
         double smartSourceScore = 0;
@@ -606,65 +608,143 @@ public class WelcomeUI extends javax.swing.JFrame {
         int sourceNameIndex = -1;
         int sourceNameScore = 0;
         int sourceMonthScore = 0;
+        int mostRecentMonth = -1;
+        int nextMonth = 0;
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        String[] mostRecentTransfer = {};
+        String mostRecentSource = "";
+        boolean smartSourceIgnore = true;
+        
+        
+        if (configMemory.size() > 8) {
+            mostRecentTransfer = configMemory.get(configMemory.size() - 1).split(">>>");
+            smartSourceTemp = new File(mostRecentTransfer[2]);
+            mostRecentSource = smartSourceTemp.getName();
+        }
         
         for(int i = 0; i < configMemory.size(); i++) {
             if (configMemory.get(i).contains("SMART SOURCE: YES"))
                 wins++;
             else if (configMemory.get(i).contains("SMART SOURCE: NO"))
                 losses++;
+            
+            if (i > 8)
+                if (i == configMemory.size() - 1)
+                    for(int m = 0; m < months.length; m++)
+                        if (mostRecentSource.contains(months[m])) {
+                            mostRecentMonth = m;
+                            smartSourceIgnore = false;
+                            break;
+                        }
         }
         
-        if(losses > 25)
+        if(losses > 25) {
             smartSourceGoal = 0.75;
-        else if (losses > 50)
+            if(checkMoreSources(configMemory, 5, 0.5))
+                smartSourceIgnore = false;
+        } else if (losses > 50) {
             smartSourceGoal = 0.9;
+            if(checkMoreSources(configMemory, 10, 0.7))
+                smartSourceIgnore = false;
+        }
+        
+        if (mostRecentMonth != -1 && !smartSourceIgnore) {
+            if (mostRecentMonth == 11 || mostRecentMonth == 23)
+                nextMonth = 0;
+            else
+                nextMonth = mostRecentMonth++;
+            
+            if (smartSourceTemp != null) {
+                smartSourceParent = new File(smartSourceTemp.getParent());
+                for (final File fileEntry : smartSourceParent.listFiles())
+                    if ((fileEntry.getName().contains(months[nextMonth]) ||
+                            fileEntry.getName().contains(months[nextMonth+12])) &&
+                            (fileEntry.getName().contains(String.valueOf(currentYear)) ||
+                            fileEntry.getName().contains(String.valueOf(currentYear--))))
+                        smartSourcePicker = fileEntry;
+                if (smartSourcePicker == null)
+                    smartSourceIgnore = true;
+            }
+        }
         
         smartSourceScore = wins / (wins + losses);
-        
-        
-        smartSourcePicker = fetchDirectoryPrompt("source");
-        //Check for year in most recent transfer
-            //Check for month in most recent transfer
-                //Iterate and suggest next month/year if such a folder exists
-                    //(Search parent folder)
-        //If no year/month in most recent transfer ("SMART SOURCE: IGNORE")
             
-            
-        if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
+        if(smartSourceIgnore) {
             while (true) {
                 sourceDirSrc = fetchDirectoryPrompt("source");
                 if(trueFalsePrompt(
                         "Is this the folder you wanted\n"
                       + "to pick: " + sourceDirSrc.getName() + "?", 
-                        "Confirm Directory")) {
-                    if (sourceDirSrc.getAbsolutePath().equals(smartSourcePicker.getAbsolutePath()))
-                        smartSourceStatus = "SMART SOURCE: YES";
-                    else
-                        smartSourceStatus = "SMART SOURCE: NO";
+                        "Confirm Directory"))
                     break;
-                }
             }
-        else {
-            if(trueFalsePrompt(
-                    "Is this the folder you wanted\n"
-                    + "to pick: " + smartSourcePicker.getName() + "?",
-                    "Smart Source Picker")) {
-                smartSourceStatus = "SMART SOURCE: YES";
-                sourceDirSrc = smartSourcePicker;
-            }
-            else {
-                smartSourceStatus = "SMART SOURCE: NO";
+            smartSourceStatus = "SMART SOURCE: IGNORE";
+        } else
+            if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
                 while (true) {
                     sourceDirSrc = fetchDirectoryPrompt("source");
                     if(trueFalsePrompt(
                             "Is this the folder you wanted\n"
                           + "to pick: " + sourceDirSrc.getName() + "?", 
-                            "Confirm Directory"))
+                            "Confirm Directory")) {
+                        if (sourceDirSrc.getAbsolutePath().equals(smartSourcePicker.getAbsolutePath()))
+                            smartSourceStatus = "SMART SOURCE: YES";
+                        else
+                            smartSourceStatus = "SMART SOURCE: NO";
                         break;
+                    }
+                }
+            else {
+                if(trueFalsePrompt(
+                        "Is this the folder you wanted\n"
+                        + "to pick: " + smartSourcePicker.getName() + "?",
+                        "Smart Source Picker")) {
+                    smartSourceStatus = "SMART SOURCE: YES";
+                    sourceDirSrc = smartSourcePicker;
+                } else {
+                    smartSourceStatus = "SMART SOURCE: NO";
+                    while (true) {
+                        sourceDirSrc = fetchDirectoryPrompt("source");
+                        if(trueFalsePrompt(
+                                "Is this the folder you wanted\n"
+                              + "to pick: " + sourceDirSrc.getName() + "?", 
+                                "Confirm Directory"))
+                            break;
+                    }
                 }
             }
-        }
         return sourceDirSrc;
+    }
+    
+    private boolean checkMoreSources(ArrayList<String> configMemory, 
+            int distance, double threshhold) {
+        String[] months = {"January", "February", "March", "April", "May", "June", 
+            "July", "August", "September", "October", "November", "December",
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+            "Nov", "Dec"};
+        String[] configMemorySplit;
+        File mostRecentSourceFile;
+        String mostRecentSource;
+        int monthScore = 0;
+        int yearScore = 0;
+        double checkMoreScore = 0.0;
+        
+        for (int i = configMemory.size() - 1; i >= distance; i--){
+            configMemorySplit = configMemory.get(i).split(">>>");
+            mostRecentSourceFile = new File(configMemorySplit[2]);
+            mostRecentSource = mostRecentSourceFile.getName();
+            if (mostRecentSource.matches("^[12][0-9]{3}$"))
+                yearScore++;
+            for(int m = 0; m < months.length; m++)
+                        if (mostRecentSource.contains(months[m]))
+                            monthScore++;
+        }
+        
+        checkMoreScore = (monthScore + yearScore) / distance;
+        
+        if (checkMoreScore > threshhold)
+            return true;
+        return false;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

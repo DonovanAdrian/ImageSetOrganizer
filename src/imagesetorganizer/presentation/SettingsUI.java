@@ -52,6 +52,7 @@ public class SettingsUI extends javax.swing.JFrame {
         sourceBtn = new javax.swing.JButton();
         imageSetNumBtn = new javax.swing.JButton();
         resetConfigBtn = new javax.swing.JButton();
+        statsBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -96,6 +97,13 @@ public class SettingsUI extends javax.swing.JFrame {
             }
         });
 
+        statsBtn.setText("Show Stats");
+        statsBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statsBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout settingsUIjPanelLayout = new javax.swing.GroupLayout(settingsUIjPanel);
         settingsUIjPanel.setLayout(settingsUIjPanelLayout);
         settingsUIjPanelLayout.setHorizontalGroup(
@@ -104,18 +112,20 @@ public class SettingsUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(settingsTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingsUIjPanelLayout.createSequentialGroup()
-                .addGap(0, 29, Short.MAX_VALUE)
-                .addGroup(settingsUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(imageSetNumBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
-                    .addComponent(destinationBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(sourceBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(resetConfigBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(22, 22, 22))
             .addGroup(settingsUIjPanelLayout.createSequentialGroup()
                 .addGap(100, 100, 100)
                 .addComponent(closeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingsUIjPanelLayout.createSequentialGroup()
+                .addGap(0, 29, Short.MAX_VALUE)
+                .addGroup(settingsUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(statsBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                    .addGroup(settingsUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(imageSetNumBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                        .addComponent(destinationBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(sourceBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(resetConfigBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(22, 22, 22))
         );
         settingsUIjPanelLayout.setVerticalGroup(
             settingsUIjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,7 +140,9 @@ public class SettingsUI extends javax.swing.JFrame {
                 .addComponent(imageSetNumBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resetConfigBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(statsBtn)
+                .addGap(18, 18, 18)
                 .addComponent(closeBtn)
                 .addGap(16, 16, 16))
         );
@@ -234,6 +246,11 @@ public class SettingsUI extends javax.swing.JFrame {
         if (!configChanges.contains("DestinationDirSrc"))
             configChanges.add("DestinationDirSrc");
     }//GEN-LAST:event_destinationBtnActionPerformed
+
+    private void statsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statsBtnActionPerformed
+        StatsUI statsUI = new StatsUI();
+        statsUI.setVisible(true);
+    }//GEN-LAST:event_statsBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -380,5 +397,6 @@ public class SettingsUI extends javax.swing.JFrame {
     private javax.swing.JLabel settingsTextField;
     private javax.swing.JPanel settingsUIjPanel;
     private javax.swing.JButton sourceBtn;
+    private javax.swing.JButton statsBtn;
     // End of variables declaration//GEN-END:variables
 }
