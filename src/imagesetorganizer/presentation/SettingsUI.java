@@ -22,18 +22,26 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class SettingsUI extends javax.swing.JFrame {
 
-    static ArrayList<String> configMemory = new ArrayList<>();
-    static ArrayList<String> configChanges = new ArrayList<>();
-    static File destinationDirSrc;
-    static File sourceDirSrc;
-    static JFileChooser fileChooser;
-    static int imageSetNumCatcher = 0;
-    static boolean configError = true;
+    ArrayList<String> configMemory = new ArrayList<>();
+    ArrayList<String> configChanges = new ArrayList<>();
+    File destinationDirSrc;
+    File sourceDirSrc;
+    JFileChooser fileChooser;
+    int imageSetNumCatcher = 0;
+    boolean configError = false;
     /**
      * Creates new form SettingsUI
      */
     public SettingsUI() {
+        if(configMemory.isEmpty())
+            initializeConfig();
         initComponents();
+    }
+    
+    public SettingsUI(ArrayList<String> configMemory, 
+            ArrayList<String> configChanges, File destinationDirSrc,
+            File sourceDirSrc, int imageSetNumCatcher) {
+        
     }
 
     /**
@@ -179,16 +187,27 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void imageSetNumBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imageSetNumBtnActionPerformed
-        this.setVisible(false);
-        ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(2);
-        imageSetPicker.setVisible(true);
-        if (!configChanges.contains("ImageSetNum"))
-            configChanges.add("ImageSetNum");
+        if (!configError) {
+            this.setVisible(false);
+            ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(2);
+            imageSetPicker.setVisible(true);
+            if (!configChanges.contains("ImageSetNum"))
+                configChanges.add("ImageSetNum");
+            System.out.println("ImageSetNum Changed: " + configChanges.size());
+        } else
+            JOptionPane.showMessageDialog(null,
+                "Because there was an error\n"
+              + "reading the config, please\n"
+              + "reset the config. If you do\n"
+              + "not reset the config, this\n"
+              + "program may not work properly.",
+                "Please Reset Config", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_imageSetNumBtnActionPerformed
 
     private void closeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeBtnActionPerformed
         String changes = "";
         boolean updateConfig = true;
+        System.out.println("ConfigChanges: " + configChanges.size());
         
         if(configError)
             JOptionPane.showMessageDialog(null,
@@ -201,23 +220,23 @@ public class SettingsUI extends javax.swing.JFrame {
         
         if(configChanges.contains("ImageSetNum")) {
             configMemory.set(2, String.valueOf(imageSetNumCatcher));
-            changes += " number of image sets";
+            changes += "number of image sets ";
         }
         if(configChanges.contains("DestinationDirSrc")) {
             configMemory.set(3, destinationDirSrc.getAbsolutePath());
             if(configChanges.size() == 2)
-                changes += " and the";
+                changes += "and the ";
             else if(configChanges.size() == 3)
                 changes += ",";
-            changes += " destination folder";
+            changes += "destination folder ";
         }
         if(configChanges.contains("SourceDirSrc")) {
             configMemory.set(4, sourceDirSrc.getAbsolutePath());
             if(configChanges.size() == 2)
-                changes += " and the";
+                changes += "and the ";
             else if(configChanges.size() == 3)
-                changes += ", and the";
-            changes += " source folder";
+                changes += ", and the ";
+            changes += "source folder";
         }
         
         if(!configChanges.isEmpty()){
@@ -236,15 +255,35 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_closeBtnActionPerformed
 
     private void sourceBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceBtnActionPerformed
-        sourceDirSrc = fetchDirectoryPrompt("source");
-        if (!configChanges.contains("SourceDirSrc"))
-            configChanges.add("SourceDirSrc");
+        if (!configError) {
+            sourceDirSrc = fetchDirectoryPrompt("source");
+            if (!configChanges.contains("SourceDirSrc"))
+                configChanges.add("SourceDirSrc");
+            System.out.println("SourceDirSrc Changed: " + configChanges.size());
+        } else
+            JOptionPane.showMessageDialog(null,
+                "Because there was an error\n"
+              + "reading the config, please\n"
+              + "reset the config. If you do\n"
+              + "not reset the config, this\n"
+              + "program may not work properly.",
+                "Please Reset Config", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_sourceBtnActionPerformed
 
     private void destinationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationBtnActionPerformed
-        destinationDirSrc = fetchDirectoryPrompt("destination");
-        if (!configChanges.contains("DestinationDirSrc"))
-            configChanges.add("DestinationDirSrc");
+        if (!configError) {
+            destinationDirSrc = fetchDirectoryPrompt("destination");
+            if (!configChanges.contains("DestinationDirSrc"))
+                configChanges.add("DestinationDirSrc");
+            System.out.println("DestinationDirSrc Changed: " + configChanges.size());
+        } else
+            JOptionPane.showMessageDialog(null,
+                "Because there was an error\n"
+              + "reading the config, please\n"
+              + "reset the config. If you do\n"
+              + "not reset the config, this\n"
+              + "program may not work properly.",
+                "Please Reset Config", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_destinationBtnActionPerformed
 
     private void statsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statsBtnActionPerformed
@@ -284,8 +323,6 @@ public class SettingsUI extends javax.swing.JFrame {
         //</editor-fold>
         
         //</editor-fold>
-        
-        initializeConfig();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
@@ -297,7 +334,7 @@ public class SettingsUI extends javax.swing.JFrame {
         imageSetNumCatcher = imageSetNum;
     }
     
-    private static void initializeConfig(){
+    private void initializeConfig(){
         File configFile = new File("config.txt");
         
         try {
@@ -306,7 +343,7 @@ public class SettingsUI extends javax.swing.JFrame {
             String output;
             while((output = bReader.readLine()) != null)
                 configMemory.add(output);
-            System.out.println("Config Read");
+            System.out.println("Config Read: " + configMemory.size());
         } catch (IOException ioe) {
             System.out.println("Error: Config Not Read...");
             JOptionPane.showMessageDialog(null,
@@ -319,7 +356,7 @@ public class SettingsUI extends javax.swing.JFrame {
         }
     }
     
-    private static void writeToConfig(){
+    private void writeToConfig(){
         File configFile = new File("config.txt");
         
         if (configFile.exists() && configFile.isFile() && configFile.canWrite())
@@ -349,7 +386,7 @@ public class SettingsUI extends javax.swing.JFrame {
         }
     }
     
-    private static boolean trueFalsePrompt(String prompt, String title){
+    private boolean trueFalsePrompt(String prompt, String title){
         while(true) {
             int userChoice = JOptionPane.showOptionDialog(null, prompt, title,
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,

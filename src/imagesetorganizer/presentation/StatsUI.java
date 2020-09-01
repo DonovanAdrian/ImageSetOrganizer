@@ -251,7 +251,10 @@ public class StatsUI extends javax.swing.JFrame {
                 totalTransfersInt++;
         }
         
-        smartScoreInt = smartWinsInt / (smartWinsInt + smartLossesInt);
+        if(smartWinsInt != 0)
+            smartScoreInt = smartWinsInt / (smartWinsInt + smartLossesInt);
+        else
+            smartScoreInt = 0;
         
         totalTransfers.setText(String.valueOf(totalTransfersInt));
         smartScore.setText(String.valueOf(smartScoreInt));
