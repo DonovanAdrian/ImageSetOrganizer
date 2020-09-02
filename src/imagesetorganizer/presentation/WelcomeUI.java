@@ -27,6 +27,7 @@ public class WelcomeUI extends javax.swing.JFrame {
     
     String smartSourceStatus = "";
     int imageSetNumCatcher = 0;
+    int imageSetNum = 0;
     ProgressUI progWin = new ProgressUI();
 
     /**
@@ -164,7 +165,6 @@ public class WelcomeUI extends javax.swing.JFrame {
         File destinationDirSrc;
         File sourceDirSrc;
         File fileQueue;
-        int imageSetNum;
         String newSourceDir = "";
         String sourceDirName = "";
         String transferStatus = "NOMINAL";
@@ -188,7 +188,8 @@ public class WelcomeUI extends javax.swing.JFrame {
         }
         
         if (!configError && !configMemory.isEmpty()){
-            imageSetNum = Integer.valueOf(configMemory.get(2));
+            if (imageSetNum == 0)
+                imageSetNum = Integer.valueOf(configMemory.get(2));
             destinationDirSrc = new File(configMemory.get(3));
             sourceDirSrc = new File(configMemory.get(4));
             
@@ -225,10 +226,13 @@ public class WelcomeUI extends javax.swing.JFrame {
                   + "the amount of image sets.\n"
                   + "Please reset the number of\n"
                   + "image sets on the following\n"
-                  + "window.",
+                  + "window. You will need to restart\n"
+                  + "the transfer process after\n"
+                  + "entering the number.",
                     "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
                     this.setVisible(false);
-                    ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(1);
+                    ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(
+                            null, null, destinationDirSrc, sourceDirSrc, 1);
                     imageSetPicker.setVisible(true);
                 }
                 
@@ -480,7 +484,7 @@ public class WelcomeUI extends javax.swing.JFrame {
     }
     
     public void imageSetNumCatcher(int imageSetNum){
-        imageSetNumCatcher = imageSetNum;
+        this.imageSetNum = imageSetNum;
     }
     
     private static boolean trueFalsePrompt(String prompt, String title){

@@ -20,6 +20,8 @@ import javax.swing.filechooser.FileSystemView;
 public class ImageSetPickerUI extends javax.swing.JFrame {
     
     ArrayList<File> createdFolders = new ArrayList<>();
+    ArrayList<String> configMemory = new ArrayList<>();
+    ArrayList<String> configChanges = new ArrayList<>();
     String imageSetNum = "0";
     String destinationDir = "";
     String sourceDir = "";
@@ -28,6 +30,7 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     File sourceDirSrc;
     JFileChooser fileChooser;
     int outsideOfMethod = 0;
+    int imageSetNumCatcher = 0;
     
     /**
      * Creates new form ImageSetPickerUI
@@ -37,6 +40,17 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
     }
     
     public ImageSetPickerUI(int outsideOfMethod) {
+        this.outsideOfMethod = outsideOfMethod;
+        initComponents();
+    }
+    
+    public ImageSetPickerUI(ArrayList<String> configMemory,
+            ArrayList<String> configChanges, File destinationDirSrc,
+            File sourceDirSrc, int outsideOfMethod) {
+        this.configMemory = configMemory;
+        this.configChanges = configChanges;
+        this.destinationDirSrc = destinationDirSrc;
+        this.sourceDirSrc = sourceDirSrc;
         this.outsideOfMethod = outsideOfMethod;
         initComponents();
     }
@@ -382,8 +396,8 @@ public class ImageSetPickerUI extends javax.swing.JFrame {
             welcomeUI.setVisible(true);
         } else {
             this.setVisible(false);
-            SettingsUI settingsUI = new SettingsUI();
-            settingsUI.imageSetNumCatcher(Integer.valueOf(imageSetNum));
+            SettingsUI settingsUI = new SettingsUI(configMemory, 
+            configChanges, destinationDirSrc, sourceDirSrc, Integer.valueOf(imageSetNum));
             settingsUI.setVisible(true);
         }
     }//GEN-LAST:event_continueBtnActionPerformed

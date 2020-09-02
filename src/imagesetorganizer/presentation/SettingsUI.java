@@ -41,7 +41,11 @@ public class SettingsUI extends javax.swing.JFrame {
     public SettingsUI(ArrayList<String> configMemory, 
             ArrayList<String> configChanges, File destinationDirSrc,
             File sourceDirSrc, int imageSetNumCatcher) {
-        
+        this.configMemory = configMemory;
+        this.configChanges = configChanges;
+        this.destinationDirSrc = destinationDirSrc;
+        this.sourceDirSrc = sourceDirSrc;
+        this.imageSetNumCatcher = imageSetNumCatcher;
     }
 
     /**
@@ -189,7 +193,8 @@ public class SettingsUI extends javax.swing.JFrame {
     private void imageSetNumBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imageSetNumBtnActionPerformed
         if (!configError) {
             this.setVisible(false);
-            ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(2);
+            ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(configMemory, 
+                        configChanges, destinationDirSrc, sourceDirSrc, 2);
             imageSetPicker.setVisible(true);
             if (!configChanges.contains("ImageSetNum"))
                 configChanges.add("ImageSetNum");
@@ -328,10 +333,6 @@ public class SettingsUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new SettingsUI().setVisible(true);
         });
-    }
-    
-    public void imageSetNumCatcher(int imageSetNum){
-        imageSetNumCatcher = imageSetNum;
     }
     
     private void initializeConfig(){
