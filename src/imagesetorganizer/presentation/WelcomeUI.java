@@ -163,6 +163,7 @@ public class WelcomeUI extends javax.swing.JFrame {
         File configFile = new File("config.txt");
         File tempImageSetFolder;
         File destinationDirSrc;
+        File newSourceDirSrc;
         File sourceDirSrc;
         File fileQueue;
         String newSourceDir = "";
@@ -220,7 +221,7 @@ public class WelcomeUI extends javax.swing.JFrame {
                 }
                 
                 if(imageSetNum == 0) {
-                    imageSetNumReset = true;
+                    imageSetNumReset = true; 
                     JOptionPane.showMessageDialog(null,
                     "There was an error finding\n"
                   + "the amount of image sets.\n"
@@ -375,7 +376,9 @@ public class WelcomeUI extends javax.swing.JFrame {
                     "Source Folder?");
             if (userChoice)
                 while (true) {
-                    newSourceDir = fetchDirectoryPrompt("source").getAbsolutePath();
+                    newSourceDirSrc = fetchDirectoryPrompt("source");
+                    newSourceDir = newSourceDirSrc.getAbsolutePath();
+                    sourceDirName = newSourceDirSrc.getName();
                     if (trueFalsePrompt("Are you sure you want the folder:\n"
                             + newSourceDir + "?", 
                             "Confirm New Source"))
@@ -411,7 +414,8 @@ public class WelcomeUI extends javax.swing.JFrame {
                 }
             }
             
-            for (int i = 0; i < imageSetNum; i++) {
+            imageSetNum++;
+            for (int i = 1; i < imageSetNum; i++) {
                 tempImageSetFolder = new File(destinationDirSrc + "/" + 
                         sourceDirName + " - " + i + " Print");
                 if(!tempImageSetFolder.exists())

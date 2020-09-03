@@ -24,7 +24,7 @@ public class SettingsUI extends javax.swing.JFrame {
 
     ArrayList<String> configMemory = new ArrayList<>();
     ArrayList<String> configChanges = new ArrayList<>();
-    File destinationDirSrc;
+    File destinationDirSrc = null;
     File sourceDirSrc;
     JFileChooser fileChooser;
     int imageSetNumCatcher = 0;
@@ -46,6 +46,7 @@ public class SettingsUI extends javax.swing.JFrame {
         this.destinationDirSrc = destinationDirSrc;
         this.sourceDirSrc = sourceDirSrc;
         this.imageSetNumCatcher = imageSetNumCatcher;
+        initComponents();
     }
 
     /**
@@ -225,35 +226,43 @@ public class SettingsUI extends javax.swing.JFrame {
         
         if(configChanges.contains("ImageSetNum")) {
             configMemory.set(2, String.valueOf(imageSetNumCatcher));
-            changes += "number of image sets ";
+            changes += "number of image sets";
+            if(configChanges.size() == 1)
+                changes += "\n";
         }
         if(configChanges.contains("DestinationDirSrc")) {
             configMemory.set(3, destinationDirSrc.getAbsolutePath());
             if(configChanges.size() == 2)
-                changes += "and the ";
+                changes += "\nand the ";
             else if(configChanges.size() == 3)
-                changes += ",";
-            changes += "destination folder ";
+                changes += ",\n";
+            changes += "destination folder";
         }
         if(configChanges.contains("SourceDirSrc")) {
             configMemory.set(4, sourceDirSrc.getAbsolutePath());
             if(configChanges.size() == 2)
-                changes += "and the ";
+                changes += "\nand the ";
             else if(configChanges.size() == 3)
-                changes += ", and the ";
+                changes += ",\nand the ";
             changes += "source folder";
         }
         
         if(!configChanges.isEmpty()){
             updateConfig = trueFalsePrompt(
-                  "Since you updated the\n" + changes + ",\n"
-                + "the config can now be updated.\n\n"
+                  "Since you updated the\n" + changes
+                + ",\nthe config can now be updated.\n\n"
                 + "Would you like to update the config?",
                   "Update Config?");
         }
         
-        if(updateConfig)
+        if(updateConfig) {
             writeToConfig();
+            if(configChanges.contains("DestinationDirSrc"))
+                createNewImageSetFolders();
+            else if(!configChanges.contains("DestinationDirSrc") && 
+                        configChanges.contains("ImageSetNum"))
+                updateImageSetFolders();
+        }
         this.setVisible(false);
         WelcomeUI welcomeUI = new WelcomeUI();
         welcomeUI.setVisible(true);
@@ -387,6 +396,109 @@ public class SettingsUI extends javax.swing.JFrame {
         }
     }
     
+    private void createNewImageSetFolders(){
+        File tempImageSetFolder;
+        File sourceDirSrc;
+        String sourceDirName;
+        
+        if(!configMemory.get(4).equals("###NO SOURCE DIR PROVIDED###")){
+            sourceDirSrc = new File(configMemory.get(4));
+            sourceDirName = sourceDirSrc.getName();
+        } else
+            while (true) {
+                    sourceDirName = JOptionPane.showInputDialog(null,
+                            "Since a source directory wasn't set, please\n"
+                          + "choose a name for the image set folders.",
+                            "Input A File Name",
+                            JOptionPane.PLAIN_MESSAGE);
+                    if(userInputValid(sourceDirName)) {
+                        if(trueFalsePrompt(
+                                "Are you sure you want the name:\n"
+                               + sourceDirName + "?", "Confirm New Name"))
+                            break;
+                    } else
+                        JOptionPane.showMessageDialog(null,
+                            "Please enter a valid name for the\n"
+                          + "image set folders... Please try again!",
+                            "Unsuitable Name", JOptionPane.ERROR_MESSAGE);
+                }
+        
+        if(imageSetNumCatcher == 0)
+            imageSetNumCatcher = Integer.valueOf(configMemory.get(2));
+        
+        imageSetNumCatcher++;
+        for (int i = 1; i < imageSetNumCatcher; i++) {
+                tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                        sourceDirName + " - " + i + " Print");
+                if(!tempImageSetFolder.exists())
+                    if(tempImageSetFolder.mkdir())
+                        System.out.println("Created Image Set Folder " + i);
+                    else
+                        System.out.println("Failed To Create Folder: " + 
+                                tempImageSetFolder.getName());
+            }
+    }
+    
+    private void updateImageSetFolders(){
+        ArrayList<File> imageSetFolders = new ArrayList<>();
+        File tempImageSetFolder;
+        String sourceDirName = "";
+        boolean filePresent = false;
+        
+        if (destinationDirSrc == null)
+            destinationDirSrc = new File(configMemory.get(3));
+        
+        for (final File fileEntry : destinationDirSrc.listFiles())
+                if (fileEntry.getName().contains(" - ") && 
+                    fileEntry.getName().contains(" Print")){
+                    imageSetFolders.add(fileEntry);
+                    System.out.println("Added: " + fileEntry.getName());
+                }
+        
+        if (!imageSetFolders.isEmpty()) {
+            sourceDirName = fetchSourceDirName(
+                    imageSetFolders.get(imageSetFolders.size()-1).getName());
+            
+            while (imageSetFolders.size() > imageSetNumCatcher) {
+                for (final File fileEntry : imageSetFolders.get(imageSetFolders.size()-1).listFiles()) {
+                    System.out.println("File Found In Folder, Cannot Delete");
+                    filePresent = true;
+                }
+                
+                if(!filePresent)
+                    if(imageSetFolders.get(imageSetFolders.size()-1).delete())
+                        System.out.println("Folder Successfully Deleted");
+                    else
+                        System.out.println("Folder Not Deleted");
+                imageSetFolders.remove(imageSetFolders.size()-1);
+                filePresent = false;
+            }
+
+            while (imageSetFolders.size() < imageSetNumCatcher) {
+                tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                            sourceDirName + " - " + imageSetFolders.size()+1 + " Print");
+                    if(!tempImageSetFolder.exists())
+                        if(tempImageSetFolder.mkdir())
+                            System.out.println("Created Image Set Folder");
+                        else
+                            System.out.println("Failed To Create Folder: " + 
+                                    tempImageSetFolder.getName());
+                imageSetFolders.add(tempImageSetFolder);
+            }
+        } else {
+            System.out.println("No Image Set Folders Found!");
+        }
+    }
+    
+    private String fetchSourceDirName(String fileName){
+        String sourceDirName = "";
+        int i = fileName.indexOf(" - ");
+        
+        sourceDirName = fileName.substring(0, i);
+        
+        return sourceDirName;
+    }
+    
     private boolean trueFalsePrompt(String prompt, String title){
         while(true) {
             int userChoice = JOptionPane.showOptionDialog(null, prompt, title,
@@ -434,6 +546,10 @@ public class SettingsUI extends javax.swing.JFrame {
     
     private boolean testReadWrite(File directory){
         return directory.exists() && directory.canRead() && directory.canWrite();
+    }
+    
+    private boolean userInputValid(String userInput){
+        return !userInput.matches("[/\\\"<>:|?*]");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
