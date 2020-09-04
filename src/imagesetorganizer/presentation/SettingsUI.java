@@ -25,9 +25,12 @@ public class SettingsUI extends javax.swing.JFrame {
     ArrayList<String> configMemory = new ArrayList<>();
     ArrayList<String> configChanges = new ArrayList<>();
     File destinationDirSrc = null;
+    File oldDestinationDirSrc;
     File sourceDirSrc;
+    File oldSourceDirSrc;
     JFileChooser fileChooser;
     int imageSetNumCatcher = 0;
+    int oldImageSetNumCatcher = 0;
     boolean configError = false;
     /**
      * Creates new form SettingsUI
@@ -223,12 +226,16 @@ public class SettingsUI extends javax.swing.JFrame {
               + "not reset the config, this\n"
               + "program may not work properly.",
                 "Please Reset Config", JOptionPane.ERROR_MESSAGE);
+        else {
+            oldImageSetNumCatcher = Integer.valueOf(configMemory.get(2));
+            oldDestinationDirSrc = new File(configMemory.get(3));
+            oldSourceDirSrc = new File(configMemory.get(4));
+        }
+            
         
         if(configChanges.contains("ImageSetNum")) {
             configMemory.set(2, String.valueOf(imageSetNumCatcher));
             changes += "number of image sets";
-            if(configChanges.size() == 1)
-                changes += "\n";
         }
         if(configChanges.contains("DestinationDirSrc")) {
             configMemory.set(3, destinationDirSrc.getAbsolutePath());
@@ -257,8 +264,10 @@ public class SettingsUI extends javax.swing.JFrame {
         
         if(updateConfig) {
             writeToConfig();
-            if(configChanges.contains("DestinationDirSrc"))
+            if(configChanges.contains("DestinationDirSrc")) {
                 createNewImageSetFolders();
+                deleteOldFolders(oldDestinationDirSrc);
+            }
             else if(!configChanges.contains("DestinationDirSrc") && 
                         configChanges.contains("ImageSetNum"))
                 updateImageSetFolders();
@@ -443,7 +452,10 @@ public class SettingsUI extends javax.swing.JFrame {
         ArrayList<File> imageSetFolders = new ArrayList<>();
         File tempImageSetFolder;
         String sourceDirName = "";
+        int newImageSetInt = 0;
+        int filesNotDeletedCount = 0;
         boolean filePresent = false;
+        boolean filesNotDeleted = false;
         
         if (destinationDirSrc == null)
             destinationDirSrc = new File(configMemory.get(3));
@@ -456,6 +468,7 @@ public class SettingsUI extends javax.swing.JFrame {
                 }
         
         if (!imageSetFolders.isEmpty()) {
+            imageSetFolders = sortImageSetFolders(imageSetFolders);
             sourceDirName = fetchSourceDirName(
                     imageSetFolders.get(imageSetFolders.size()-1).getName());
             
@@ -463,20 +476,25 @@ public class SettingsUI extends javax.swing.JFrame {
                 for (final File fileEntry : imageSetFolders.get(imageSetFolders.size()-1).listFiles()) {
                     System.out.println("File Found In Folder, Cannot Delete");
                     filePresent = true;
+                    break;
                 }
                 
                 if(!filePresent)
                     if(imageSetFolders.get(imageSetFolders.size()-1).delete())
                         System.out.println("Folder Successfully Deleted");
-                    else
+                    else {
                         System.out.println("Folder Not Deleted");
+                        filesNotDeleted = true;
+                        filesNotDeletedCount++;
+                    }
                 imageSetFolders.remove(imageSetFolders.size()-1);
                 filePresent = false;
             }
 
             while (imageSetFolders.size() < imageSetNumCatcher) {
+                newImageSetInt = imageSetFolders.size() + 1;
                 tempImageSetFolder = new File(destinationDirSrc + "/" + 
-                            sourceDirName + " - " + imageSetFolders.size()+1 + " Print");
+                            sourceDirName + " - " + newImageSetInt + " Print");
                     if(!tempImageSetFolder.exists())
                         if(tempImageSetFolder.mkdir())
                             System.out.println("Created Image Set Folder");
@@ -485,8 +503,67 @@ public class SettingsUI extends javax.swing.JFrame {
                                     tempImageSetFolder.getName());
                 imageSetFolders.add(tempImageSetFolder);
             }
+            
+            if (filesNotDeleted) {
+                String supplementaryText = "file";
+                if (filesNotDeletedCount > 1)
+                    supplementaryText += "s were";
+                else
+                    supplementaryText += " was";
+                JOptionPane.showMessageDialog(null,
+                    "Due to the change in the\n"
+                  + "number of image sets, we\n"
+                  + "deleted some old folders.\n\n"
+                  + "Unfortunately, " + filesNotDeletedCount + supplementaryText + "\n"
+                  + "not deleted because there\n"
+                  + "are still files present in\n"
+                  + "each folder.",
+                    "Some Folders Were Not Deleted", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
             System.out.println("No Image Set Folders Found!");
+            imageSetNumCatcher++;
+            for (int i = 1; i < imageSetNumCatcher; i++) {
+                tempImageSetFolder = new File(destinationDirSrc + "/" + 
+                        "Default - " + i + " Print");
+                if(!tempImageSetFolder.exists())
+                    if(tempImageSetFolder.mkdir())
+                        System.out.println("Created Image Set Folder " + i);
+                    else {
+                        System.out.println("Failed To Create Folder: " + 
+                                tempImageSetFolder.getName());
+                    }
+            }
+        }
+    }
+    
+    private void deleteOldFolders(File oldDirectory){
+        ArrayList<File> imageSetFolders = new ArrayList<>();
+        boolean filePresent = false;
+        
+        for (final File fileEntry : oldDirectory.listFiles())
+                if (fileEntry.getName().contains(" - ") && 
+                    fileEntry.getName().contains(" Print")){
+                    imageSetFolders.add(fileEntry);
+                    System.out.println("Added: " + fileEntry.getName());
+                }
+        
+        for (int i = 0; i < imageSetFolders.size(); i++) {
+            for (final File fileEntry : imageSetFolders.get(i).listFiles()) {
+                System.out.println("File Found In Old Folder, Cannot Delete");
+                filePresent = true;
+                break;
+            }
+            if(!filePresent)
+                if (imageSetFolders.get(i).delete())
+                    System.out.println("Deleted Old Folder " + 
+                            imageSetFolders.get(i).getName());
+                else
+                    System.out.println("Failed To Delete Old Folder: " + 
+                            imageSetFolders.get(i).getName());
+            else
+                System.out.println("Old Folder Not Deleted: Files Present");
+            filePresent = false;
         }
     }
     
@@ -497,6 +574,30 @@ public class SettingsUI extends javax.swing.JFrame {
         sourceDirName = fileName.substring(0, i);
         
         return sourceDirName;
+    }
+    
+    private ArrayList<File> sortImageSetFolders(ArrayList<File> imageSetFolders){
+        ArrayList<File> sortedImageSetFolders = new ArrayList<>();
+        String[] imageSetNums = {" 0 ", " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", 
+            " 6 ", " 7 ", " 8 ", " 9 ", " 10 ", " 11 ", " 12 ", " 13 ",
+            " 14 ", " 15 ", " 16 ", " 17 ", " 18 ", " 19 ", " 20 "};
+        String tempFileName;
+        int adjustedN = 0;
+        
+        for(int i = 0; i < imageSetFolders.size(); i++)
+            sortedImageSetFolders.add(imageSetFolders.get(i));
+        
+        for(int i = 0; i < imageSetFolders.size(); i++){
+            tempFileName = imageSetFolders.get(i).getName();
+            for(int n = 0; n < imageSetNums.length; n++)
+                if(tempFileName.contains(imageSetNums[n])) {
+                    adjustedN = n - 1;
+                    sortedImageSetFolders.set(adjustedN, imageSetFolders.get(i));
+                }
+        }
+        
+        System.out.println("Sorted Folders");
+        return sortedImageSetFolders;
     }
     
     private boolean trueFalsePrompt(String prompt, String title){
