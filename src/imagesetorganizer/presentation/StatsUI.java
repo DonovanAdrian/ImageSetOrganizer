@@ -243,11 +243,11 @@ public class StatsUI extends javax.swing.JFrame {
                 smartLossesInt++;
             else if (configMemory.get(i).contains("SMART SOURCE: IGNORE"))
                 smartIgnoresInt++;
-            else if (configMemory.get(i).contains("FAILED"))
+            if (configMemory.get(i).contains("FAILED"))
                 failedTransfersInt++;
             else if (configMemory.get(i).contains("PARTIAL"))
                 partialTransfersInt++;
-            else if (i > 8)
+            if (i > 8)
                 totalTransfersInt++;
         }
         

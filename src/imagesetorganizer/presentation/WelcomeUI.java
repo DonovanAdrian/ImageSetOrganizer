@@ -194,11 +194,12 @@ public class WelcomeUI extends javax.swing.JFrame {
             destinationDirSrc = new File(configMemory.get(3));
             sourceDirSrc = new File(configMemory.get(4));
             
-            if (destinationDirSrc.exists() && sourceDirSrc.exists() && imageSetNum != 0)
+            if (destinationDirSrc.exists() && sourceDirSrc.exists() && imageSetNum != 0) {
                 System.out.println("All Operations Nominal");
-            else if (destinationDirSrc.exists() && !sourceDirSrc.exists() && imageSetNum != 0){
+                smartSourcePicker(destinationDirSrc, configMemory, true);
+            } else if (destinationDirSrc.exists() && !sourceDirSrc.exists() && imageSetNum != 0){
                 System.out.println("Source Set Up Required");
-                sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory);
+                sourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory, false);
             } else {
                 System.out.println("Destination Exists: " + destinationDirSrc.exists());
                 System.out.println("Source Exists: " + sourceDirSrc.exists());
@@ -374,20 +375,14 @@ public class WelcomeUI extends javax.swing.JFrame {
             boolean userChoice = trueFalsePrompt(
                 "Would you like to set up a source folder for your next transfer?",
                     "Source Folder?");
-            if (userChoice)
-                while (true) {
-                    newSourceDirSrc = fetchDirectoryPrompt("source");
-                    newSourceDir = newSourceDirSrc.getAbsolutePath();
-                    sourceDirName = newSourceDirSrc.getName();
-                    if (trueFalsePrompt("Are you sure you want the folder:\n"
-                            + newSourceDir + "?", 
-                            "Confirm New Source"))
-                        break;
-                }
-            else
+            if (userChoice) {
+                newSourceDirSrc = smartSourcePicker(destinationDirSrc, configMemory, false);
+                newSourceDir = newSourceDirSrc.getAbsolutePath();
+                sourceDirName = newSourceDirSrc.getName();
+            } else
                 while (true) {
                     sourceDirName = JOptionPane.showInputDialog(null,
-                            "Since a source directory wasn't set, please\n"
+                            "Since a new source directory wasn't set, please\n"
                           + "choose a name for the image set folders.",
                             "Input A File Name",
                             JOptionPane.PLAIN_MESSAGE);
@@ -597,7 +592,8 @@ public class WelcomeUI extends javax.swing.JFrame {
         return true;
     }
     
-    private File smartSourcePicker(File destination, ArrayList<String> configMemory){
+    private File smartSourcePicker(File destination, ArrayList<String> configMemory,
+            boolean overrideSourceDir){
         ArrayList<String> sourceMonthFiles = new ArrayList<>();
         ArrayList<Integer> sourceMonthTracker = new ArrayList<>();
         String[] configMemorySplit;
@@ -605,7 +601,7 @@ public class WelcomeUI extends javax.swing.JFrame {
             "July", "August", "September", "October", "November", "December",
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
             "Nov", "Dec"};
-        File sourceDirSrc;
+        File sourceDirSrc = null;
         File smartSourcePicker = null;
         File smartSourceTemp = null;
         File smartSourceParent;
@@ -648,11 +644,11 @@ public class WelcomeUI extends javax.swing.JFrame {
         
         if(losses > 25) {
             smartSourceGoal = 0.75;
-            if(checkMoreSources(configMemory, 5, 0.5))
+            if(checkMoreSources(configMemory, 5, 0.5 , 1))
                 smartSourceIgnore = false;
         } else if (losses > 50) {
             smartSourceGoal = 0.9;
-            if(checkMoreSources(configMemory, 10, 0.7))
+            if(checkMoreSources(configMemory, 10, 0.7, 1))
                 smartSourceIgnore = false;
         }
         
@@ -674,57 +670,60 @@ public class WelcomeUI extends javax.swing.JFrame {
         }
         
         smartSourceScore = wins / (wins + losses);
-            
-        if (smartSourcePicker != null)
-            if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
-                while (true) {
-                    sourceDirSrc = fetchDirectoryPrompt("source");
-                    if(trueFalsePrompt(
-                            "Is this the folder you wanted\n"
-                          + "to pick: " + sourceDirSrc.getName() + "?", 
-                            "Confirm Directory")) {
-                        if (sourceDirSrc.getAbsolutePath().equals(
-                                smartSourcePicker.getAbsolutePath()))
-                            smartSourceStatus = "SMART SOURCE: YES";
-                        else
-                            smartSourceStatus = "SMART SOURCE: NO";
-                        break;
-                    }
-                }
-            else
-                if(trueFalsePrompt(
-                        "Is this the folder you wanted\n"
-                        + "to pick: " + smartSourcePicker.getName() + "?",
-                        "Smart Source Picker")) {
-                    smartSourceStatus = "SMART SOURCE: YES";
-                    sourceDirSrc = smartSourcePicker;
-                } else {
-                    smartSourceStatus = "SMART SOURCE: NO";
+        
+        if (!overrideSourceDir)
+            if (smartSourcePicker != null)
+                if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
                     while (true) {
                         sourceDirSrc = fetchDirectoryPrompt("source");
                         if(trueFalsePrompt(
                                 "Is this the folder you wanted\n"
                               + "to pick: " + sourceDirSrc.getName() + "?", 
-                                "Confirm Directory"))
+                                "Confirm Directory")) {
+                            if (sourceDirSrc.getAbsolutePath().equals(
+                                    smartSourcePicker.getAbsolutePath()))
+                                smartSourceStatus = "SMART SOURCE: YES";
+                            else
+                                smartSourceStatus = "SMART SOURCE: NO";
                             break;
+                        }
                     }
+                else
+                    if(trueFalsePrompt(
+                            "Is this the folder you wanted\n"
+                            + "to pick: " + smartSourcePicker.getName() + "?",
+                            "Smart Source Picker")) {
+                        smartSourceStatus = "SMART SOURCE: YES";
+                        sourceDirSrc = smartSourcePicker;
+                    } else {
+                        smartSourceStatus = "SMART SOURCE: NO";
+                        while (true) {
+                            sourceDirSrc = fetchDirectoryPrompt("source");
+                            if(trueFalsePrompt(
+                                    "Is this the folder you wanted\n"
+                                  + "to pick: " + sourceDirSrc.getName() + "?", 
+                                    "Confirm Directory"))
+                                break;
+                        }
+                    }
+            else {
+                while (true) {
+                    sourceDirSrc = fetchDirectoryPrompt("source");
+                    if(trueFalsePrompt(
+                            "Is this the folder you wanted\n"
+                          + "to pick: " + sourceDirSrc.getName() + "?", 
+                            "Confirm Directory"))
+                        break;
                 }
-        else {
-            while (true) {
-                sourceDirSrc = fetchDirectoryPrompt("source");
-                if(trueFalsePrompt(
-                        "Is this the folder you wanted\n"
-                      + "to pick: " + sourceDirSrc.getName() + "?", 
-                        "Confirm Directory"))
-                    break;
+                smartSourceStatus = "SMART SOURCE: IGNORE";
             }
+        else
             smartSourceStatus = "SMART SOURCE: IGNORE";
-        }
         return sourceDirSrc;
     }
     
     private boolean checkMoreSources(ArrayList<String> configMemory, 
-            int distance, double threshhold) {
+            int distance, double threshhold, int mode) {
         String[] months = {"January", "February", "March", "April", "May", "June", 
             "July", "August", "September", "October", "November", "December",
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
@@ -736,22 +735,27 @@ public class WelcomeUI extends javax.swing.JFrame {
         int yearScore = 0;
         double checkMoreScore;
         
-        for (int i = configMemory.size() - 1; i >= distance; i--){
-            configMemorySplit = configMemory.get(i).split(">>>");
-            mostRecentSourceFile = new File(configMemorySplit[2]);
-            mostRecentSource = mostRecentSourceFile.getName();
-            if (mostRecentSource.matches("^[12][0-9]{3}$"))
-                yearScore++;
-            for (String month : months) {
-                if (mostRecentSource.contains(month))
-                    monthScore++;
+        if(mode == 1) {
+            for (int i = configMemory.size() - 1; i >= distance; i--){
+                configMemorySplit = configMemory.get(i).split(">>>");
+                mostRecentSourceFile = new File(configMemorySplit[2]);
+                mostRecentSource = mostRecentSourceFile.getName();
+                if (mostRecentSource.matches("^[12][0-9]{3}$"))
+                    yearScore++;
+                for (String month : months) {
+                    if (mostRecentSource.contains(month))
+                        monthScore++;
+                }
             }
+
+            checkMoreScore = (monthScore + yearScore) / distance;
+
+            if (checkMoreScore > threshhold)
+                return true;
+        } else if (mode == 2) {
+            //check for duplicates in recent transfers
+            //if a duplicate is used more than THRESHHOLD return true
         }
-        
-        checkMoreScore = (monthScore + yearScore) / distance;
-        
-        if (checkMoreScore > threshhold)
-            return true;
         return false;
     }
 
