@@ -25,6 +25,7 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class WelcomeUI extends javax.swing.JFrame {
     
+    File smartSourceDuplicatePicker = null;
     String smartSourceStatus = "";
     int imageSetNumCatcher = 0;
     int imageSetNum = 0;
@@ -609,6 +610,9 @@ public class WelcomeUI extends javax.swing.JFrame {
         double losses = 0;
         double smartSourceScore;
         double smartSourceGoal = 0.5;
+        double ignoreScore;
+        double ignores = 0.0;
+        double totalTransfers = 0.0;
         int sourceNameIndex = -1;
         int sourceNameScore = 0;
         int sourceMonthScore = 0;
@@ -631,8 +635,10 @@ public class WelcomeUI extends javax.swing.JFrame {
                 wins++;
             else if (configMemory.get(i).contains("SMART SOURCE: NO"))
                 losses++;
+            else if (configMemory.get(i).contains("SMART SOURCE: IGNORE"))
+                ignores++;
             
-            if (i > 8)
+            if (i > 8) {
                 if (i == configMemory.size() - 1)
                     for(int m = 0; m < months.length; m++)
                         if (mostRecentSource.contains(months[m])) {
@@ -640,15 +646,30 @@ public class WelcomeUI extends javax.swing.JFrame {
                             smartSourceIgnore = false;
                             break;
                         }
+                totalTransfers++;
+            }
+        }
+        
+        
+        
+        if(ignores > 0.0) {
+            ignoreScore = ignores / totalTransfers;
+            if (ignoreScore > .25)
+                if(checkMoreSources(configMemory, 10, 0.5, 2))
+                    smartSourceIgnore = false;
         }
         
         if(losses > 25) {
             smartSourceGoal = 0.75;
             if(checkMoreSources(configMemory, 5, 0.5 , 1))
                 smartSourceIgnore = false;
+            if(checkMoreSources(configMemory, 25, 0.6, 2))
+                smartSourceIgnore = false;
         } else if (losses > 50) {
             smartSourceGoal = 0.9;
             if(checkMoreSources(configMemory, 10, 0.7, 1))
+                smartSourceIgnore = false;
+            if(checkMoreSources(configMemory, 50, 0.8, 2))
                 smartSourceIgnore = false;
         }
         
@@ -671,7 +692,10 @@ public class WelcomeUI extends javax.swing.JFrame {
         
         smartSourceScore = wins / (wins + losses);
         
-        if (!overrideSourceDir)
+        if (!overrideSourceDir) {
+            if (smartSourcePicker == null && smartSourceDuplicatePicker != null)
+                smartSourcePicker = smartSourceDuplicatePicker;
+            
             if (smartSourcePicker != null)
                 if (configMemory.size() < 18 || smartSourceScore < smartSourceGoal)
                     while (true) {
@@ -717,13 +741,15 @@ public class WelcomeUI extends javax.swing.JFrame {
                 }
                 smartSourceStatus = "SMART SOURCE: IGNORE";
             }
-        else
+        } else
             smartSourceStatus = "SMART SOURCE: IGNORE";
         return sourceDirSrc;
     }
     
     private boolean checkMoreSources(ArrayList<String> configMemory, 
             int distance, double threshhold, int mode) {
+        ArrayList<String> duplicates = new ArrayList<>();
+        ArrayList<Integer> duplicatesScore = new ArrayList<>();
         String[] months = {"January", "February", "March", "April", "May", "June", 
             "July", "August", "September", "October", "November", "December",
             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
@@ -733,6 +759,12 @@ public class WelcomeUI extends javax.swing.JFrame {
         String mostRecentSource;
         int monthScore = 0;
         int yearScore = 0;
+        int duplicateIndex;
+        int maximumScore = 0;
+        int largestScoreIndex = -1;
+        int totalTransfers = 0;
+        double distanceTransferScore;
+        double totalTransferScore;
         double checkMoreScore;
         
         if(mode == 1) {
@@ -753,8 +785,41 @@ public class WelcomeUI extends javax.swing.JFrame {
             if (checkMoreScore > threshhold)
                 return true;
         } else if (mode == 2) {
-            //check for duplicates in recent transfers
-            //if a duplicate is used more than THRESHHOLD return true
+            for (int i = configMemory.size() - 1; i >= distance; i--){
+                if (i > 8) {
+                    configMemorySplit = configMemory.get(i).split(">>>");
+                    mostRecentSourceFile = new File(configMemorySplit[2]);
+                    mostRecentSource = mostRecentSourceFile.getAbsolutePath();
+
+                    if (!duplicates.contains(mostRecentSource)) {
+                        duplicates.add(mostRecentSource);
+                        duplicatesScore.add(1);
+                    } else {
+                        duplicateIndex = duplicates.indexOf(mostRecentSource);
+                        duplicatesScore.set(duplicateIndex, duplicatesScore.get(duplicateIndex) + 1);
+                    }
+                    totalTransfers++;
+                }
+            }
+            
+            for (int i = 0; i < duplicatesScore.size(); i++) {
+                if (duplicatesScore.get(i) > maximumScore) {
+                    maximumScore = duplicatesScore.get(i);
+                    largestScoreIndex = i;
+                }
+            }
+            
+            if (largestScoreIndex != -1) {
+                distanceTransferScore = maximumScore / distance;
+                totalTransferScore = maximumScore / totalTransfers;
+                
+                if (distanceTransferScore > threshhold ||
+                        totalTransferScore > threshhold) {
+                    smartSourceDuplicatePicker = new File(
+                            duplicates.get(largestScoreIndex));
+                    return true;
+                }
+            }
         }
         return false;
     }
