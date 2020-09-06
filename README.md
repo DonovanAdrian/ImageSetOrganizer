@@ -6,7 +6,7 @@
 - [x] Set Up Basic/Custom UI
 - [x] Set Up Logic
 - [x] Set Up Smart Source Guessing
-- [ ] Test Program
+- [x] Test Program
 - [ ] Clean Up Code
 
 
