@@ -3,11 +3,7 @@
 
 
 ## ***Task List***
-- [x] Set Up Basic/Custom UI
-- [x] Set Up Logic
-- [x] Set Up Smart Source Guessing
-- [x] Test Program
-- [ ] Clean Up Code
+- [x] All Recent Tasks Complete!
 
 
 ## Welcome!
@@ -25,8 +21,11 @@ I'm not around, I figured I'd make something that can take my place.
 
 
 ## How Well Does This Work?
-I'm not sure yet! This is still in-progress! However, many 
-of the functions from my File Extension Editor will be used 
-to shuffle around the photos as needed, so you can check 
-there if you are really interested with how well this might 
-end up working!
+With a successful transfer, the least efficient path is that of a n^9 
+Big O efficiency, and a minimum of n with an unsuccessful transfer. 
+With my (ableit limited and biased) testing, all tests were deemed 
+successful, with the exception of transfers that did not have any 
+files to move. This latter exception is considered a "Transfer Failure" 
+in the program's logic. Otherwise, I did my best to include any and 
+all error cases and proper handling, even though *almost* none of them 
+were triggered during testing.
