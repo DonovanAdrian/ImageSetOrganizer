@@ -228,10 +228,11 @@ public class StatsUI extends javax.swing.JFrame {
     }
     
     private void initializeLabels(){
+        String smartScoreSliced = "";
+        double smartScoreInt;
+        double smartWinsInt = 0;
+        double smartLossesInt = 0;
         int totalTransfersInt = 0;
-        int smartScoreInt;
-        int smartWinsInt = 0;
-        int smartLossesInt = 0;
         int smartIgnoresInt = 0;
         int failedTransfersInt = 0;
         int partialTransfersInt = 0;
@@ -251,13 +252,14 @@ public class StatsUI extends javax.swing.JFrame {
                 totalTransfersInt++;
         }
         
-        if(smartWinsInt != 0)
+        if(smartWinsInt != 0.0) {
             smartScoreInt = smartWinsInt / (smartWinsInt + smartLossesInt);
-        else
-            smartScoreInt = 0;
+            smartScoreSliced = String.valueOf(smartScoreInt).substring(0, 5);
+        } else
+            smartScoreInt = 0.0;
         
         totalTransfers.setText(String.valueOf(totalTransfersInt));
-        smartScore.setText(String.valueOf(smartScoreInt));
+        smartScore.setText(smartScoreSliced);
         smartWins.setText(String.valueOf(smartWinsInt));
         smartLosses.setText(String.valueOf(smartLossesInt));
         smartIgnores.setText(String.valueOf(smartIgnoresInt));

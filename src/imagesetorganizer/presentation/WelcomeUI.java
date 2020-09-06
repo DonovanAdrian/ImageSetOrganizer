@@ -173,6 +173,15 @@ public class WelcomeUI extends javax.swing.JFrame {
         boolean configError = false;
         boolean imageSetNumReset = false;
         
+        if (!configFile.exists())
+            try {
+                configFile.createNewFile();
+            } catch (IOException ioe) {
+                System.out.println("New Config File Not Created");
+                configError = true;
+            }
+        
+        if (!configError)
         try {
             FileReader fReader = new FileReader(configFile);
             BufferedReader bReader = new BufferedReader(fReader);
@@ -649,8 +658,6 @@ public class WelcomeUI extends javax.swing.JFrame {
                 totalTransfers++;
             }
         }
-        
-        
         
         if(ignores > 0.0) {
             ignoreScore = ignores / totalTransfers;

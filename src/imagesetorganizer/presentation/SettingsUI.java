@@ -32,6 +32,7 @@ public class SettingsUI extends javax.swing.JFrame {
     int imageSetNumCatcher = 0;
     int oldImageSetNumCatcher = 0;
     boolean configError = false;
+    boolean configEmpty = false;
     /**
      * Creates new form SettingsUI
      */
@@ -39,6 +40,8 @@ public class SettingsUI extends javax.swing.JFrame {
         if(configMemory.isEmpty())
             initializeConfig();
         initComponents();
+        if(configEmpty)
+            resetConfigBtn.setText("Create New Config");
     }
     
     public SettingsUI(ArrayList<String> configMemory, 
@@ -49,7 +52,11 @@ public class SettingsUI extends javax.swing.JFrame {
         this.destinationDirSrc = destinationDirSrc;
         this.sourceDirSrc = sourceDirSrc;
         this.imageSetNumCatcher = imageSetNumCatcher;
+        if(configMemory.isEmpty())
+            initializeConfig();
         initComponents();
+        if(configEmpty)
+            resetConfigBtn.setText("Create New Config");
     }
 
     /**
@@ -185,8 +192,12 @@ public class SettingsUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void resetConfigBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetConfigBtnActionPerformed
-        boolean userChoice = trueFalsePrompt("Are you sure you want to reset"
-                + " the config?", "Are you sure?");
+        String configWindowText = "Are you sure you want to reset the config?";
+        
+        if(configEmpty)
+            configWindowText = "Are you sure you want to create a new config?";
+        
+        boolean userChoice = trueFalsePrompt(configWindowText, "Are you sure?");
         if (userChoice){
             this.setVisible(false);
             ImageSetPickerUI imageSetPicker = new ImageSetPickerUI();
@@ -195,7 +206,7 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_resetConfigBtnActionPerformed
 
     private void imageSetNumBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imageSetNumBtnActionPerformed
-        if (!configError) {
+        if (!configError && !configEmpty) {
             this.setVisible(false);
             ImageSetPickerUI imageSetPicker = new ImageSetPickerUI(configMemory, 
                         configChanges, destinationDirSrc, sourceDirSrc, 2);
@@ -203,7 +214,15 @@ public class SettingsUI extends javax.swing.JFrame {
             if (!configChanges.contains("ImageSetNum"))
                 configChanges.add("ImageSetNum");
             System.out.println("ImageSetNum Changed: " + configChanges.size());
-        } else
+        } else if (configEmpty)
+            JOptionPane.showMessageDialog(null,
+                "Because the config was empty,\n"
+              + "there is nothing to change.\n"
+              + "Please create a config so\n"
+              + "that the program can work\n"
+              + "properly. Thank you.",
+                "Please Create Config", JOptionPane.ERROR_MESSAGE);
+        else
             JOptionPane.showMessageDialog(null,
                 "Because there was an error\n"
               + "reading the config, please\n"
@@ -226,6 +245,14 @@ public class SettingsUI extends javax.swing.JFrame {
               + "not reset the config, this\n"
               + "program may not work properly.",
                 "Please Reset Config", JOptionPane.ERROR_MESSAGE);
+        else if (configEmpty)
+            JOptionPane.showMessageDialog(null,
+                "Because the config was empty,\n"
+              + "there is nothing to change.\n"
+              + "Please create a config so\n"
+              + "that the program can work\n"
+              + "properly. Thank you.",
+                "Please Create Config", JOptionPane.ERROR_MESSAGE);
         else {
             oldImageSetNumCatcher = Integer.valueOf(configMemory.get(2));
             oldDestinationDirSrc = new File(configMemory.get(3));
@@ -278,12 +305,20 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_closeBtnActionPerformed
 
     private void sourceBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceBtnActionPerformed
-        if (!configError) {
+        if (!configError && !configEmpty) {
             sourceDirSrc = fetchDirectoryPrompt("source");
             if (!configChanges.contains("SourceDirSrc"))
                 configChanges.add("SourceDirSrc");
             System.out.println("SourceDirSrc Changed: " + configChanges.size());
-        } else
+        } else if (configEmpty) 
+            JOptionPane.showMessageDialog(null,
+                    "Because the config was empty,\n"
+                  + "there is nothing to change.\n"
+                  + "Please create a config so\n"
+                  + "that the program can work\n"
+                  + "properly. Thank you.",
+                    "Please Create Config", JOptionPane.ERROR_MESSAGE);
+        else
             JOptionPane.showMessageDialog(null,
                 "Because there was an error\n"
               + "reading the config, please\n"
@@ -294,12 +329,20 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_sourceBtnActionPerformed
 
     private void destinationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationBtnActionPerformed
-        if (!configError) {
+        if (!configError && !configEmpty) {
             destinationDirSrc = fetchDirectoryPrompt("destination");
             if (!configChanges.contains("DestinationDirSrc"))
                 configChanges.add("DestinationDirSrc");
             System.out.println("DestinationDirSrc Changed: " + configChanges.size());
-        } else
+        } else if (configEmpty)
+            JOptionPane.showMessageDialog(null,
+                "Because the config was empty,\n"
+              + "there is nothing to change.\n"
+              + "Please create a config so\n"
+              + "that the program can work\n"
+              + "properly. Thank you.",
+                "Please Create Config", JOptionPane.ERROR_MESSAGE);
+        else
             JOptionPane.showMessageDialog(null,
                 "Because there was an error\n"
               + "reading the config, please\n"
@@ -310,10 +353,18 @@ public class SettingsUI extends javax.swing.JFrame {
     }//GEN-LAST:event_destinationBtnActionPerformed
 
     private void statsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statsBtnActionPerformed
-        if (!configError) {
+        if (!configError && !configEmpty) {
             StatsUI statsUI = new StatsUI(configMemory);
             statsUI.setVisible(true);
-        } else
+        } else if (configEmpty)
+            JOptionPane.showMessageDialog(null,
+                "Because the config was empty,\n"
+              + "there is nothing to change.\n"
+              + "Please create a config so\n"
+              + "that the program can work\n"
+              + "properly. Thank you.",
+                "Please Create Config", JOptionPane.ERROR_MESSAGE);
+        else
             JOptionPane.showMessageDialog(null,
                 "Because there was an error\n"
               + "reading the config, this\n"
@@ -356,22 +407,36 @@ public class SettingsUI extends javax.swing.JFrame {
     private void initializeConfig(){
         File configFile = new File("config.txt");
         
-        try {
-            FileReader fReader = new FileReader(configFile);
-            BufferedReader bReader = new BufferedReader(fReader);
-            String output;
-            while((output = bReader.readLine()) != null)
-                configMemory.add(output);
-            System.out.println("Config Read: " + configMemory.size());
-        } catch (IOException ioe) {
-            System.out.println("Error: Config Not Read...");
-            JOptionPane.showMessageDialog(null,
-                "There was an error reading\n"
-              + "the config... Is the config\n"
-              + "corrupted? Please reset the\n"
-              + "config.",
-                "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
-            configError = true;
+        if (!configFile.exists())
+            try {
+                configFile.createNewFile();
+            } catch (IOException ioe) {
+                System.out.println("New Config File Not Created");
+                configError = true;
+            }
+        
+        if(!configError) {
+            try {
+                FileReader fReader = new FileReader(configFile);
+                BufferedReader bReader = new BufferedReader(fReader);
+                String output;
+                while((output = bReader.readLine()) != null)
+                    configMemory.add(output);
+                System.out.println("Config Read: " + configMemory.size());
+            } catch (IOException ioe) {
+                System.out.println("Error: Config Not Read...");
+                JOptionPane.showMessageDialog(null,
+                    "There was an error reading\n"
+                  + "the config... Is the config\n"
+                  + "corrupted? Please reset the\n"
+                  + "config.",
+                    "Failed Reading Config", JOptionPane.ERROR_MESSAGE);
+                configError = true;
+            }
+            
+            if(configMemory.isEmpty()) {
+                configEmpty = true;
+            }
         }
     }
     
